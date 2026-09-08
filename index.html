@@ -2383,7 +2383,7 @@
         let cwGridState = [];
         let cwCols = 0, cwRows = 0;
         let cwCurrentWordIdx = null;
-        let cwCurrentMode = 'tongdal';
+        let cwCurrentMode = 'amgi'; // 십자말풀이 기본 과목: 계시록 암기(탭 위치는 그대로, 통달을 누르면 그쪽으로 전환)
         // 사용자가 마지막으로 고른 방향('H'/'V'). 교차 칸에서 다음 칸으로 넘어가거나
         // 다시 포커스가 잡힐 때, 사용자가 고른 방향과 다른 단어로 엉뚱하게 튀지 않도록
         // 이 방향과 같은 단어를 우선 선택한다.
@@ -3442,19 +3442,14 @@
                 </div>`;
         }
 
-        // 상위 글 정렬: ①관리자가 고정한 글(항상 맨 위, 최신순) → ②고정 안 된 글 중 "인기" 글
-        // 최대 10개(좋아요 수 내림차순, 동률이면 답글 수, 그다음 최신순) → ③나머지는 최신순.
+        // 상위 글 정렬: ①관리자가 고정한 글(항상 맨 위, 최신순) → ②나머지는 전부 최신순.
+        // (예전엔 좋아요/답글 수 기준 "인기" 구간이 고정과 최신 사이에 따로 있었으나, 최신
+        // 글이 밀려 보이던 문제로 제거 — 이제 고정 글 다음은 그냥 최신 글 순서 그대로.)
         function sortCommunityTopPosts() {
             const all = communityPosts.filter(p => !p.parentId);
-            const replyCountOf = id => communityPosts.filter(p => p.parentId === id).length;
             const pinned = all.filter(p => p.pinned).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            const rest = all.filter(p => !p.pinned);
-            const popular = rest.filter(p => (p.likes || 0) > 0 || replyCountOf(p.id) > 0)
-                .sort((a, b) => (b.likes || 0) - (a.likes || 0) || replyCountOf(b.id) - replyCountOf(a.id) || new Date(b.createdAt) - new Date(a.createdAt))
-                .slice(0, 10);
-            const popularIds = new Set(popular.map(p => p.id));
-            const others = rest.filter(p => !popularIds.has(p.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            return { pinned, popular, others, all: [...pinned, ...popular, ...others] };
+            const others = all.filter(p => !p.pinned).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return { pinned, others, all: [...pinned, ...others] };
         }
 
         // skipIfFocused: true면, 지금 답글/수정 입력칸에 포커스가 가 있을 때(한창 타이핑 중일 때)는
@@ -3472,7 +3467,7 @@
                 const active = document.activeElement;
                 if (active && feedEl.contains(active) && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
             }
-            const { pinned, popular, others, all: topPosts } = sortCommunityTopPosts();
+            const { pinned, others, all: topPosts } = sortCommunityTopPosts();
             if (countEl) countEl.textContent = topPosts.length ? `(${topPosts.length})` : '';
 
             if (topPosts.length === 0) {
@@ -3528,22 +3523,16 @@
                 </div>`;
             };
 
-            // 고정/인기/최신 구간이 두 개 이상 실제로 있을 때만 작은 구간 표시를 붙인다
-            // (한 구간만 있으면 굳이 이름표를 붙일 필요가 없음).
+            // 고정 글이 있을 때만 "📌 고정된 글" 이름표를 붙여 최신 글과 구분해준다
+            // (고정 글이 없으면 전부 최신순 한 묶음이라 이름표가 필요 없음).
             const sectionLabel = (text, colorClass) => `<p class="text-[11.5px] font-black ${colorClass} px-1 pt-1 first:pt-0">${text}</p>`;
-            const nonEmptyGroupCount = [pinned.length > 0, popular.length > 0, others.length > 0].filter(Boolean).length;
-            const showLabels = nonEmptyGroupCount >= 2;
             let html = '';
             if (pinned.length > 0) {
-                if (showLabels) html += sectionLabel('📌 고정된 글', 'text-amber-600');
+                html += sectionLabel('📌 고정된 글', 'text-amber-600');
                 html += pinned.map(renderPostCard).join('');
-            }
-            if (popular.length > 0) {
-                if (showLabels) html += sectionLabel('🔥 인기 이야기', 'text-rose-500');
-                html += popular.map(renderPostCard).join('');
+                if (others.length > 0) html += sectionLabel('🕒 최신 이야기', 'text-slate-400');
             }
             if (others.length > 0) {
-                if (showLabels) html += sectionLabel('🕒 최신 이야기', 'text-slate-400');
                 html += others.map(renderPostCard).join('');
             }
             feedEl.innerHTML = html;
