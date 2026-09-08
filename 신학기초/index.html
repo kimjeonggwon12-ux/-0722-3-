@@ -2534,12 +2534,6 @@
             // 안 걸려서 분리된 자모가 통째로 지워지고, 눈으로는 똑같아 보이는 답이 오답 처리된다.
             normalizeString(str) { return str ? str.normalize('NFC').replace(/[^가-힣0-9]/g, '') : ''; },
             strictCompare(userText, correctText) { return this.normalizeString(userText) === this.normalizeString(correctText); },
-            // 정답 문구 뒤에 붙는 "[...]" 는 보충 설명(참고용 각주)일 뿐 실제로 사용자가 써야
-            // 하는 답의 일부가 아니다(예: "천사와 심판 (단 7:2...) [바람이 분다: ...]"에서
-            // 대괄호 안 문장까지 그대로 써야만 정답 처리되던 버그 — "바람" 문항 신고로 발견,
-            // 대괄호 각주가 있는 다른 모든 문항에도 동일하게 적용되는 문제라 채점 함수
-            // 진입점(answerCompare/alignedCorrectText/diffChars)에서 공통으로 떼어낸다).
-            stripAnswerNote(text) { return (text || '').replace(/\s*\[[^\]]*\]/g, '').trim(); },
             // 관용적 채점: 조사(은/는/이/가/을/를 등)뿐 아니라 어미(고/어/아 등)까지 워낙 다양해서
             // 목록으로 다 관리하기 어려우므로, "조사·어미는 보통 한 글자"라는 점을 이용해 끝 한
             // 글자가 틀리거나(치환) 있고 없고(추가/누락) 하는 것은 모두 정답으로 인정한다.
@@ -2586,7 +2580,12 @@
                 return rec(0, 0);
             },
             lenientCompare(userText, correctText) {
-                const cTokens = (correctText || '').trim().split(/\s+/).filter(Boolean).map(t => this.normalizeString(t));
+                // "/" 같은 순수 기호만 있는 단어는 normalizeString을 거치면 빈 문자열이
+                // 되는데, lenientAlign이 빈 토큰을 만나면 그 자리에서 무조건 매칭 실패로
+                // 처리해버려 정답을 통째로 다 맞게 써도 오답 처리되는 버그가 있었다(예: "…
+                // 천사를 통한 심판 / 바람을 붙잡는다…"처럼 정답 문구 중간에 "/" 구분자가
+                // 있는 문항). 정규화 후 빈 토큰은 애초에 비교 대상이 아니므로 걸러낸다.
+                const cTokens = (correctText || '').trim().split(/\s+/).filter(Boolean).map(t => this.normalizeString(t)).filter(Boolean);
                 const uFull = this.normalizeString(userText);
                 if (!uFull || cTokens.length === 0) return false;
                 return this.lenientAlign(cTokens, uFull);
@@ -2635,7 +2634,9 @@
                 if (!uFull) return null;
                 const perms = this.permuteClauses(cClauses);
                 for (const order of perms) {
-                    const cTokens = order.flatMap(clause => clause.trim().split(/\s+/).filter(Boolean).map(t => this.normalizeString(t)));
+                    // lenientCompare와 동일한 이유로, 정규화 후 빈 문자열이 되는 순수 기호
+                    // 토큰("/" 등)은 걸러낸다(안 그러면 정답을 그대로 다 써도 오답 처리됨).
+                    const cTokens = order.flatMap(clause => clause.trim().split(/\s+/).filter(Boolean).map(t => this.normalizeString(t)).filter(Boolean));
                     if (this.lenientAlign(cTokens, uFull)) return { order };
                 }
                 return null;
@@ -2644,7 +2645,6 @@
             // 성구를 먼저 쓰든 내용을 먼저 쓰든, 성구가 여러 개일 때 그 순서가 서로 달라도
             // (항목들의 순서 무관 매칭이 가능하면) 정답으로 인정한다.
             answerCompare(userText, correctText) {
-                correctText = this.stripAnswerNote(correctText);
                 if (this.lenientCompare(userText, correctText)) return true;
                 return !!this.findAnyOrderMatch(userText, correctText);
             },
@@ -2653,13 +2653,12 @@
             // 해야 diffChars가 "순서를 바꿔 쓴 것" 자체를 오탈자처럼 빨간색/노란색으로 잘못
             // 표시하지 않고, 진짜 오탈자만 짚어준다.
             alignedCorrectText(userText, correctText) {
-                correctText = this.stripAnswerNote(correctText);
                 const m = this.findAnyOrderMatch(userText, correctText);
                 if (!m) return correctText;
                 return m.order.join(', ');
             },
             diffChars(user, correct) {
-                const u = this.normalizeString(user); const c = this.normalizeString(this.stripAnswerNote(correct));
+                const u = this.normalizeString(user); const c = this.normalizeString(correct);
                 const dp = Array(u.length + 1).fill(null).map(() => Array(c.length + 1).fill(0));
                 for(let i = 1; i <= u.length; i++) {
                     for(let j = 1; j <= c.length; j++) {
