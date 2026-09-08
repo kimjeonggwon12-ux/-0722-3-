@@ -740,7 +740,7 @@
             "마 13:47-50": "또 천국은 마치 바다에 치고 각종 물고기를 모는 그물과 같으니... 세상 끝에도 이러하리라 천사들이 와서 의인 중에서 악인을 갈라 내어 풀무 불에 던져 넣으리니...",
             "마 4:18~20": "갈릴리 해변에 다니시다가 두 형제... 바다에 그물 던지는 것을 보시니 저희는 어부라 / 말씀하시되 나를 따라 오너라 내가 너희로 사람을 낚는 어부가 되게 하리라 하시니 / 저희가 곧 그물을 버려 두고 예수를 좇으니라",
             "계 8:8~9": "둘째 천사가 나팔을 부니 불 붙는 큰 산과 같은 것이 바다에 던지우매 바다의 삼분의 일이 피가 되고 / 바다 가운데 생명 가진 피조물들의 삼분의 일이 죽고 배들의 삼분의 일이 깨어지더라",
-            "계 18:17-19": "...각 선장과 각처를 다니는 선객들과 선인들과 바다에서 일하는 자들이 멀리 서서... 이 큰 성이여 바다에서 배 부리는 모든 자들이 너의 보배로운 상품을 인하여 치부하였더니 일시간에 망하였도다 하더라",
+            "계 18:17-19": "...각 선장과 각처를 다니는 선객들과 선인들과 바다에서 일하는 자들이 멀리 서서... 이 큰 성이여 바다에서 배 부리는 모든 자들이 너의 보배로운 상품을 인하여 치부하였더니 일시간에 망하였도다",
             "시 49:20": "존귀에 처하나 깨닫지 못하는 사람은 멸망하는 짐승 같도다",
             "사 29:10": "대저 여호와께서 깊이 잠들게 하는 신을 너희에게 부어주사 너희의 눈을 감기셨음이니 눈은 선지자요 너희 머리를 덮으셨음이니 머리는 선견자라",
             "엡 4:15": "오직 사랑 안에서 참된 것을 하여 범사에 그에게까지 자랄찌라 그는 머리니 곧 그리스도라",
@@ -2534,6 +2534,12 @@
             // 안 걸려서 분리된 자모가 통째로 지워지고, 눈으로는 똑같아 보이는 답이 오답 처리된다.
             normalizeString(str) { return str ? str.normalize('NFC').replace(/[^가-힣0-9]/g, '') : ''; },
             strictCompare(userText, correctText) { return this.normalizeString(userText) === this.normalizeString(correctText); },
+            // 정답 문구 뒤에 붙는 "[...]" 는 보충 설명(참고용 각주)일 뿐 실제로 사용자가 써야
+            // 하는 답의 일부가 아니다(예: "천사와 심판 (단 7:2...) [바람이 분다: ...]"에서
+            // 대괄호 안 문장까지 그대로 써야만 정답 처리되던 버그 — "바람" 문항 신고로 발견,
+            // 대괄호 각주가 있는 다른 모든 문항에도 동일하게 적용되는 문제라 채점 함수
+            // 진입점(answerCompare/alignedCorrectText/diffChars)에서 공통으로 떼어낸다).
+            stripAnswerNote(text) { return (text || '').replace(/\s*\[[^\]]*\]/g, '').trim(); },
             // 관용적 채점: 조사(은/는/이/가/을/를 등)뿐 아니라 어미(고/어/아 등)까지 워낙 다양해서
             // 목록으로 다 관리하기 어려우므로, "조사·어미는 보통 한 글자"라는 점을 이용해 끝 한
             // 글자가 틀리거나(치환) 있고 없고(추가/누락) 하는 것은 모두 정답으로 인정한다.
@@ -2638,6 +2644,7 @@
             // 성구를 먼저 쓰든 내용을 먼저 쓰든, 성구가 여러 개일 때 그 순서가 서로 달라도
             // (항목들의 순서 무관 매칭이 가능하면) 정답으로 인정한다.
             answerCompare(userText, correctText) {
+                correctText = this.stripAnswerNote(correctText);
                 if (this.lenientCompare(userText, correctText)) return true;
                 return !!this.findAnyOrderMatch(userText, correctText);
             },
@@ -2646,12 +2653,13 @@
             // 해야 diffChars가 "순서를 바꿔 쓴 것" 자체를 오탈자처럼 빨간색/노란색으로 잘못
             // 표시하지 않고, 진짜 오탈자만 짚어준다.
             alignedCorrectText(userText, correctText) {
+                correctText = this.stripAnswerNote(correctText);
                 const m = this.findAnyOrderMatch(userText, correctText);
                 if (!m) return correctText;
                 return m.order.join(', ');
             },
             diffChars(user, correct) {
-                const u = this.normalizeString(user); const c = this.normalizeString(correct);
+                const u = this.normalizeString(user); const c = this.normalizeString(this.stripAnswerNote(correct));
                 const dp = Array(u.length + 1).fill(null).map(() => Array(c.length + 1).fill(0));
                 for(let i = 1; i <= u.length; i++) {
                     for(let j = 1; j <= c.length; j++) {

@@ -147,6 +147,8 @@
         .g4-blank:focus { border-color: #4f46e5; background-color: #e0e7ff; }
         .g4-blank.correct { background-color: #d1fae5; border-color: #10b981; color: #047857; }
         .g4-blank.incorrect { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        /* 장별 공부하기 "괄호 넣기" 화면 전용 — 문항 문장(21px)과 같은 크기로 키움 */
+        .g4-blank-lg { font-size: 21px; padding: 2px 8px; }
         .g4-chapter-divider {
             display: flex;
             align-items: baseline;
@@ -408,6 +410,10 @@
 
             <div id="tongdal-bank-progress-panel" class="w-full relative z-10 mb-4"></div>
 
+            <button onclick="openStarredBank()" class="w-full relative z-10 mb-4 bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 text-amber-700 rounded-2xl py-3 font-black text-[14px] shadow-sm active:scale-95 transition-transform flex items-center justify-center gap-1.5">
+                ⭐ 괄호 넣기 별표 모음 보기
+            </button>
+
             <div class="w-full space-y-4 relative z-10 pb-40">
                 <button onclick="showGrade4Rooms()" class="pulse-glow-red w-full rounded-3xl p-4 flex items-center shadow-lg shadow-rose-300/40 active:scale-95 transition-transform text-left border-4 border-rose-500 relative overflow-hidden" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
                     <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black px-2.5 py-1 rounded-bl-xl shadow-sm">전장 기본 문제</span>
@@ -646,6 +652,23 @@
                         <button type="button" id="chapter-nav-prev-bottom" onclick="goToAdjacentChapter(-1)">◀ 이전 장</button>
                         <button type="button" id="chapter-nav-next-bottom" onclick="goToAdjacentChapter(1)">다음 장 ▶</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 1a-2: 괄호 넣기 별표 모음(자주 틀리는 문항만 22장 전체에서 모아 보기) -->
+        <div id="screen-starred-bank" class="hidden flex-col h-full bg-slate-50 z-10 relative">
+            <div class="bg-white px-3 py-2 flex items-center justify-between gap-2 z-20 border-b border-slate-100 shadow-sm shrink-0">
+                <span class="text-[15px] font-black text-[#1e1b4b] pl-1">⭐ 별표 모음</span>
+                <button onclick="showScreen('home')" class="bg-white border-2 border-[#c7d2fe] text-[#4f46e5] rounded-full px-4 py-2.5 shadow-sm flex items-center gap-1.5 text-[14px] font-black transition-colors flex-shrink-0">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    뒤로가기
+                </button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-5">
+                <div class="max-w-xl mx-auto">
+                    <p class="text-center text-[13px] text-amber-700 bg-amber-50 border border-amber-100 font-black rounded-full py-1.5 px-3 mb-4 break-keep">괄호 넣기에서 ☆를 눌러 별표한 문항만 장 구분 없이 모아서 보여줍니다.</p>
+                    <div id="starred-bank-container" class="space-y-4 pb-10"></div>
                 </div>
             </div>
         </div>
@@ -10427,7 +10450,7 @@
         let ROUND_SIZE = 0;
 
         const els = {
-            screens: { home: document.getElementById('screen-home'), chapterStudy: document.getElementById('screen-chapter-study'), gradeSelect: document.getElementById('screen-grade-select'), grade4Rooms: document.getElementById('screen-grade4-rooms'), grade4Study: document.getElementById('screen-grade4-study'), grade4Exam: document.getElementById('screen-grade4-exam'), grade4Mock: document.getElementById('screen-grade4-mock'), grade4MockResult: document.getElementById('screen-grade4-mock-result'), quiz: document.getElementById('screen-quiz'), result: document.getElementById('screen-result') },
+            screens: { home: document.getElementById('screen-home'), chapterStudy: document.getElementById('screen-chapter-study'), starredBank: document.getElementById('screen-starred-bank'), gradeSelect: document.getElementById('screen-grade-select'), grade4Rooms: document.getElementById('screen-grade4-rooms'), grade4Study: document.getElementById('screen-grade4-study'), grade4Exam: document.getElementById('screen-grade4-exam'), grade4Mock: document.getElementById('screen-grade4-mock'), grade4MockResult: document.getElementById('screen-grade4-mock-result'), quiz: document.getElementById('screen-quiz'), result: document.getElementById('screen-result') },
             btns: { quit: document.getElementById('btn-quit'), mainPrev: document.getElementById('btn-main-prev'), mainNext: document.getElementById('btn-main-next'), restart: document.getElementById('btn-restart'), home: document.getElementById('btn-home') },
             quiz: { chapterTitle: document.getElementById('ui-chapter-title'), score: document.getElementById('ui-score'), totalQScore: document.getElementById('ui-total-q-score'), verseNum: document.getElementById('verse-num'), verseText: document.getElementById('verse-text'), questionText: document.getElementById('question-text'), optionsContainer: document.getElementById('options-container') },
             feedback: { panel: document.getElementById('feedback-panel'), iconBox: document.getElementById('fb-icon-container'), title: document.getElementById('fb-title'), subtitle: document.getElementById('fb-subtitle'), explanation: document.getElementById('fb-explanation') },
@@ -12208,14 +12231,19 @@
             </div>`;
         }
 
-        function parseG4Template(template, markPrefix) {
+        // largeBlank=true(장별 공부하기 "괄호 넣기" 화면 전용)면 답 입력칸 글자 크기를 그
+        // 문항 문장(21px)과 같은 크기로 키우고, 그만큼 칸 너비도 넉넉하게 늘린다. 연습/전체
+        // 시험/모의고사(14px 문장) 쪽은 기존 그대로(false)라 영향 없다.
+        function parseG4Template(template, markPrefix, largeBlank) {
             const parts = template.split(/\{\{(.*?)\}\}/);
             let html = '';
             let blankIdx = 0;
+            const widthScale = largeBlank ? 1.5 : 1;
+            const blankClass = largeBlank ? 'g4-blank g4-blank-lg' : 'g4-blank';
             parts.forEach((part, i) => {
                 if (i % 2 === 1) {
-                    const w = Math.max(part.length * 1.15 + 1.2, 3.2);
-                    html += `<span class="g4-mark" id="${markPrefix}-${blankIdx}"><input type="text" class="g4-blank" data-ans="${escapeHtml(part)}" style="width:${w}rem" lang="ko" autocomplete="off" spellcheck="false" enterkeyhint="done"></span>`;
+                    const w = Math.max(part.length * 1.15 + 1.2, 3.2) * widthScale;
+                    html += `<span class="g4-mark" id="${markPrefix}-${blankIdx}"><input type="text" class="${blankClass}" data-ans="${escapeHtml(part)}" style="width:${w}rem" lang="ko" autocomplete="off" spellcheck="false" enterkeyhint="done"></span>`;
                     blankIdx++;
                 } else {
                     html += escapeHtml(part);
@@ -13116,6 +13144,40 @@
         // ─────────────────────────────────────────────────────────
         const TONGDAL_BANK_ANSWERS_KEY = 'sion_tongdal_bank_answers';
 
+        // ─────────────────────────────────────────────────────────
+        // "괄호 넣기" 문항 별표(자주 틀리는 문항) — 신학기초 과목의 별표 기능과 동일한 개념.
+        // { ch1: [0, 3, 7], ch2: [...] , ... } 형태로 장별 원본 배열 위치(idx)를 저장한다.
+        // ─────────────────────────────────────────────────────────
+        const TONGDAL_BANK_STARRED_KEY = 'sion_tongdal_bank_starred';
+        function loadBankStarredMap() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(TONGDAL_BANK_STARRED_KEY));
+                return (raw && typeof raw === 'object') ? raw : {};
+            } catch (e) { return {}; }
+        }
+        function saveBankStarredMap(map) {
+            try { localStorage.setItem(TONGDAL_BANK_STARRED_KEY, JSON.stringify(map)); } catch (e) { /* 저장 실패는 무시 */ }
+        }
+        function isBankItemStarred(chapterKey, idx) {
+            const map = loadBankStarredMap();
+            return !!(map[chapterKey] && map[chapterKey].includes(idx));
+        }
+        // 별표 버튼 클릭 처리. ns/domIdx는 지금 화면에 그려진 그 버튼 자체를 갱신하기 위한
+        // 값이고, 실제 별표 저장은 항상 chapterKey+idx(그 장의 원본 문항 위치) 기준이다.
+        // 별표 모음(starred) 화면에서 별표를 끄면 그 자리에서 목록을 다시 그려 바로 사라지게 한다.
+        window.toggleBankStar = function(chapterKey, idx, ns, domIdx) {
+            const map = loadBankStarredMap();
+            if (!map[chapterKey]) map[chapterKey] = [];
+            const list = map[chapterKey];
+            const pos = list.indexOf(idx);
+            const nowStarred = pos === -1;
+            if (nowStarred) list.push(idx); else list.splice(pos, 1);
+            saveBankStarredMap(map);
+            if (ns === 'starred') { renderStarredBankItems(); return; }
+            const btn = document.getElementById(`bank-star-${ns}-${domIdx}`);
+            if (btn) btn.textContent = nowStarred ? '⭐' : '☆';
+        };
+
         function loadAllBankAnswers() {
             try {
                 const raw = JSON.parse(localStorage.getItem(TONGDAL_BANK_ANSWERS_KEY));
@@ -13409,23 +13471,31 @@
             return `${finalPrefix}{{${finalCore}}}`;
         }
 
-        function buildBankCardHtml(item, idx, chapterVerses, chapterNum) {
+        // ns('bank'=장별 화면 그 장 안에서 보기 / 'starred'=별표만 모아보기)와 chapterKey+starIdx로
+        // 별표 버튼이 항상 "그 장의 원래 문항 위치"를 기준으로 별표를 켜고 끌 수 있게 한다
+        // (별표 모음 화면에서는 idx가 화면상 순번일 뿐이라 원래 위치(starIdx)를 따로 받아야 함).
+        function buildBankCardHtml(item, idx, chapterVerses, chapterNum, chapterKey, starIdx, ns) {
+            ns = ns || 'bank';
+            if (starIdx === undefined) starIdx = idx;
             const verseText = chapterVerses[String(item.v)] || '';
             const answerOnly = extractG4Answers(item.template).map(escapeHtml).join(' / ');
+            const starKey = `${ns}-${idx}`;
+            const isStarred = chapterKey ? isBankItemStarred(chapterKey, starIdx) : false;
             return `
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100" id="g4-card-bank-${idx}">
-                ${verseText ? `<p class="text-[21px] leading-7 text-slate-500 font-medium break-keep"><span class="inline-block align-middle bg-[#5c6bc0] text-white text-[14px] font-black rounded-full px-3 py-1.5 mr-2 whitespace-nowrap">계 ${chapterNum}:${item.v}</span>${highlightVerseKeyword(verseText, item)}</p>` : ''}
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 relative" id="g4-card-${ns}-${idx}">
+                ${chapterKey ? `<button type="button" id="bank-star-${starKey}" onclick="toggleBankStar('${chapterKey}', ${starIdx}, '${ns}', ${idx})" title="자주 틀리는 문항 별표" class="absolute top-3 right-3 text-xl leading-none transition hover:scale-110 z-10">${isStarred ? '⭐' : '☆'}</button>` : ''}
+                ${verseText ? `<p class="text-[21px] leading-7 text-slate-500 font-medium break-keep pr-8"><span class="inline-block align-middle bg-[#5c6bc0] text-white text-[14px] font-black rounded-full px-3 py-1.5 mr-2 whitespace-nowrap">계 ${chapterNum}:${item.v}</span>${highlightVerseKeyword(verseText, item)}</p>` : ''}
                 <div class="flex items-center gap-3${verseText ? ' mt-3 pt-3 border-t border-slate-100' : ''}">
                     <span class="shrink-0 w-10 h-10 rounded-full bg-[#e8eaf6] text-[#4f46e5] flex items-center justify-center font-black text-lg">${idx + 1}</span>
-                    <p class="text-[23px] leading-7 text-slate-800 font-black break-keep">${escapeHtml(item.q)}</p>
+                    <p class="text-[23px] leading-7 text-slate-800 font-black break-keep pr-8">${escapeHtml(item.q)}</p>
                 </div>
-                <p class="text-[21px] leading-7 text-[#4f46e5] font-black break-keep mt-2">${parseG4Template(item.template, `g4-mark-bank-${idx}`)}</p>
+                <p class="text-[21px] leading-7 text-[#4f46e5] font-black break-keep mt-2">${parseG4Template(item.template, `g4-mark-${ns}-${idx}`, true)}</p>
                 <div class="flex justify-end items-center gap-1.5 mt-2">
-                    <button type="button" onclick="toggleG4Preview('bank', ${idx})" class="g4-preview-btn text-[12px] bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2.5 py-1.5 rounded-lg font-bold transition">정답 보기</button>
-                    <button type="button" onclick="resetG4Card('bank', ${idx})" class="text-[12px] bg-white text-slate-500 border border-slate-200 px-2.5 py-1.5 rounded-lg font-bold hover:bg-slate-100 transition">다시 쓰기</button>
+                    <button type="button" onclick="toggleG4Preview('${ns}', ${idx})" class="g4-preview-btn text-[12px] bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2.5 py-1.5 rounded-lg font-bold transition">정답 보기</button>
+                    <button type="button" onclick="resetG4Card('${ns}', ${idx})" class="text-[12px] bg-white text-slate-500 border border-slate-200 px-2.5 py-1.5 rounded-lg font-bold hover:bg-slate-100 transition">다시 쓰기</button>
                 </div>
-                <div id="g4-preview-bank-${idx}" class="hidden text-[13px] bg-indigo-50/80 border border-indigo-100 p-2.5 rounded-lg text-indigo-800 break-keep font-bold mt-1">정답: ${answerOnly}</div>
-                <div id="g4-feedback-bank-${idx}" class="hidden text-[13px] font-bold rounded-lg px-3 py-2 mt-1"></div>
+                <div id="g4-preview-${ns}-${idx}" class="hidden text-[18px] leading-6 bg-indigo-50/80 border border-indigo-100 p-2.5 rounded-lg text-indigo-800 break-keep font-black mt-1">정답: ${answerOnly}</div>
+                <div id="g4-feedback-${ns}-${idx}" class="hidden text-[13px] font-bold rounded-lg px-3 py-2 mt-1"></div>
                 ${item.ref ? `<p class="text-[18px] leading-6 text-emerald-700 font-bold break-keep mt-2">📍 관련 성구: ${escapeHtml(item.ref)}</p>` : ''}
             </div>`;
         }
@@ -13435,8 +13505,9 @@
         // 채점할 때마다 saveBankAnswers로 결과를 바로 저장해서 다음에 다시 열어도 남아있게 한다.
         // 데스크톱 keydown Enter와 동일하게 모바일 가상 키보드의 확인/완료 키도 Enter keydown을
         // 보내므로(입력 input에 enterkeyhint="done" 지정, parseG4Template 참고) 폰에서도 그대로 동작한다.
-        function bindBankEnter(chapterKey, idx) {
-            const card = document.getElementById(`g4-card-bank-${idx}`);
+        function bindBankEnter(chapterKey, idx, ns) {
+            ns = ns || 'bank';
+            const card = document.getElementById(`g4-card-${ns}-${idx}`);
             if (!card) return;
             const inputs = Array.from(card.querySelectorAll('.g4-blank'));
             inputs.forEach(inp => {
@@ -13444,8 +13515,10 @@
                 inp.addEventListener('keydown', (e) => {
                     if (e.key !== 'Enter') return;
                     e.preventDefault();
-                    checkG4Answer('bank', idx);
-                    saveBankAnswers(chapterKey);
+                    checkG4Answer(ns, idx);
+                    // 별표 모음(starred) 화면은 여러 장이 뒤섞인 임시 조회용이라 그 장의 실제
+                    // 진도(#chapter-study-container 기준으로 저장됨)를 건드리면 안 되므로 저장하지 않는다.
+                    if (ns === 'bank') saveBankAnswers(chapterKey);
                 });
             });
         }
@@ -13456,6 +13529,43 @@
             clearBankAnswers(chapterKey);
             renderChapterStudyItems();
             renderTongdalBankProgressPanel();
+        };
+
+        // ─────────────────────────────────────────────────────────
+        // 괄호 넣기 별표 모음 — 22개 장을 돌면서 별표된 문항만 뽑아 한 화면에 모아 보여준다.
+        // 이 화면의 채점/정답보기/다시쓰기는 그 자리에서만 동작하는 임시 연습용이라(ns='starred')
+        // 진도 저장(#chapter-study-container 전용)은 건드리지 않는다 — bindBankEnter/resetG4Card의
+        // ns==='bank' 조건 체크로 이미 자연히 걸러진다.
+        function renderStarredBankItems() {
+            const container = document.getElementById('starred-bank-container');
+            if (!container) return;
+            const map = loadBankStarredMap();
+            const cards = [];
+            for (let i = 1; i <= TONGDAL_TOTAL_CHAPTERS; i++) {
+                const chapterKey = 'ch' + i;
+                const starredIdxs = map[chapterKey];
+                if (!starredIdxs || starredIdxs.length === 0) continue;
+                const bankItems = getBankItemsForChapter(chapterKey);
+                const chapterVerses = verses[chapterKey] || {};
+                starredIdxs.forEach(origIdx => {
+                    const item = bankItems[origIdx];
+                    if (!item) return;
+                    cards.push({ item, chapterKey, chapterNum: i, chapterVerses, origIdx });
+                });
+            }
+            if (cards.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 text-base font-bold py-14 break-keep">아직 별표한 문항이 없습니다.<br>괄호 넣기 화면에서 문항 오른쪽 위 ☆를 눌러<br>자주 틀리는 문항을 표시해보세요.</p>';
+                return;
+            }
+            container.innerHTML = cards.map((c, idx) =>
+                buildBankCardHtml(c.item, idx, c.chapterVerses, c.chapterNum, c.chapterKey, c.origIdx, 'starred')
+            ).join('');
+            cards.forEach((c, idx) => bindBankEnter(c.chapterKey, idx, 'starred'));
+        }
+
+        window.openStarredBank = function() {
+            renderStarredBankItems();
+            showScreen('starredBank');
         };
 
         // highlightVerseKeyword는 item.h(그 절 안에서 하이라이트할 위치를 좁혀주는 문맥 조각)가
@@ -13474,9 +13584,13 @@
             return bankItems;
         }
 
-        function renderChapterStudyBlankMode(chapterKey, items, container) {
+        // 특정 장의 "괄호 넣기" 문항 배열을 만든다(전체 정답 보기와 달리 실제 화면에 그리는
+        // 순서/내용). 장별 화면과 별표 모음 화면이 똑같은 규칙으로 이 배열을 만들어야, 별표
+        // 모음에서 보여주는 문항이 그 장에서 별표를 눌렀을 때의 문항과 정확히 같은 것이 된다.
+        function getBankItemsForChapter(chapterKey) {
+            const items = quizDataStore[chapterKey];
+            if (!items || items.length === 0) return [];
             const chapterNum = Number(chapterKey.replace('ch', ''));
-            const chapterVerses = verses[chapterKey] || {};
             const bankItems = (RICH_CHAPTERS[chapterNum] && RICH_CHAPTERS[chapterNum].length)
                 ? buildMockPoolFromRich(chapterNum)
                 : items.map(qi => ({
@@ -13488,12 +13602,19 @@
                     h: qi.h,
                 }));
             attachVerseHighlightContext(chapterKey, bankItems);
+            return bankItems;
+        }
+
+        function renderChapterStudyBlankMode(chapterKey, items, container) {
+            const chapterNum = Number(chapterKey.replace('ch', ''));
+            const chapterVerses = verses[chapterKey] || {};
+            const bankItems = getBankItemsForChapter(chapterKey);
             const resetBarHtml = `
                 <div class="flex justify-end mb-1">
                     <button type="button" onclick="resetChapterBankStudy('${chapterKey}')" class="text-[12px] bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg font-black transition active:scale-95">🗑 공부 초기화</button>
                 </div>`;
-            container.innerHTML = resetBarHtml + bankItems.map((item, idx) => buildBankCardHtml(item, idx, chapterVerses, chapterNum)).join('');
-            bankItems.forEach((item, idx) => bindBankEnter(chapterKey, idx));
+            container.innerHTML = resetBarHtml + bankItems.map((item, idx) => buildBankCardHtml(item, idx, chapterVerses, chapterNum, chapterKey, idx, 'bank')).join('');
+            bankItems.forEach((item, idx) => bindBankEnter(chapterKey, idx, 'bank'));
             container.querySelectorAll('.g4-blank').forEach(inp => inp.addEventListener('input', () => saveBankAnswers(chapterKey)));
             restoreBankAnswers(chapterKey);
         }
