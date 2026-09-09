@@ -2424,112 +2424,220 @@
             return arr;
         }
 
-        function cwGenerateCrossword() {
-            const TARGET_WORDS = 6; // 문항 수를 줄여 퍼즐을 더 작고 아담하게 유지
-            const MAX_BOARD_SIZE = 9; // 모바일에서 너무 커지지 않도록 9x9 이하로 제한
+        // 최근 퍼즐에 나왔던 단어(가로/세로 열쇠의 정답)를 기억해서 다음 퍼즐에서 안 나오게 한다.
+        // → 매번 "지팡이 · 장막성전" 같은 뻔한 단어만 반복되지 않도록.
+        let cwRecentWords = [];
+        // 세션 동안 각 단어가 몇 번 퍼즐에 나왔는지 → 적게 나온 단어를 먼저(시드로) 쓰게 해서
+        // 골고루 등장하게 한다.
+        let cwWordUseCount = {};
 
-            let overallBestResult = null;
-            let overallBestCount = 0;
-            const pool = cwCurrentMode === 'tongdal' ? CW_TONGDAL_POOL : CW_AMGI_POOL;
-
-            for (let grandAttempt = 0; grandAttempt < 5; grandAttempt++) {
-                let bestResult = null;
-                let bestCount = 0;
-
-                for (let attempt = 0; attempt < 250; attempt++) {
-                    let shuffledPool = cwShuffleArray(pool).slice(0, 30).map(x => ({ ...x }));
-                    const TEMP_SIZE = 30;
-                    let tempGrid = Array(TEMP_SIZE).fill(null).map(() => Array(TEMP_SIZE).fill(null));
-                    let placedWords = [];
-
-                    let first = shuffledPool[0];
-                    let sr = Math.floor(TEMP_SIZE / 2);
-                    let sc = Math.floor((TEMP_SIZE - first.word.length) / 2);
-                    for (let i = 0; i < first.word.length; i++) tempGrid[sr][sc + i] = first.word[i];
-                    placedWords.push({ id: 1, type: 'H', x: sc, y: sr, word: first.word, originalObj: first });
-
-                    let remainingWords = shuffledPool.slice(1);
-
-                    function getBounds(placedList) {
-                        let minR = 999, maxR = -1, minC = 999, maxC = -1;
-                        placedList.forEach(w => {
-                            if (w.type === 'H') {
-                                minR = Math.min(minR, w.y); maxR = Math.max(maxR, w.y);
-                                minC = Math.min(minC, w.x); maxC = Math.max(maxC, w.x + w.word.length - 1);
-                            } else {
-                                minR = Math.min(minR, w.y); maxR = Math.max(maxR, w.y + w.word.length - 1);
-                                minC = Math.min(minC, w.x); maxC = Math.max(maxC, w.x);
-                            }
-                        });
-                        return { minR, maxR, minC, maxC };
-                    }
-
-                    function solve(grid, placed, remaining) {
-                        if (placed.length >= TARGET_WORDS) return true;
-                        if (remaining.length === 0) return false;
-
-                        let wordObj = remaining[0];
-                        let nextRemaining = remaining.slice(1);
-                        let placements = cwFindPlacements(grid, wordObj.word);
-                        let currentBounds = getBounds(placed);
-
-                        let validPlacements = [];
-                        placements.forEach(p => {
-                            let newMinR = Math.min(currentBounds.minR, p.dir === 'V' ? p.r : p.r);
-                            let newMaxR = Math.max(currentBounds.maxR, p.dir === 'V' ? p.r + wordObj.word.length - 1 : p.r);
-                            let newMinC = Math.min(currentBounds.minC, p.dir === 'H' ? p.c : p.c);
-                            let newMaxC = Math.max(currentBounds.maxC, p.dir === 'H' ? p.c + wordObj.word.length - 1 : p.c);
-                            let width = newMaxC - newMinC + 1;
-                            let height = newMaxR - newMinR + 1;
-
-                            // 세로로 긴 모양(계시록 암기에서 특히 자주 나옴)은 격자가 화면을 다 차지해
-                            // 버리므로, 정사각형이거나 가로로 퍼진 모양(width >= height)만 허용한다.
-                            if (width <= MAX_BOARD_SIZE && height <= MAX_BOARD_SIZE && width >= height) {
-                                let intersections = 0;
-                                for (let j = 0; j < wordObj.word.length; j++) {
-                                    let r = p.dir === 'H' ? p.r : p.r + j;
-                                    let c = p.dir === 'H' ? p.c + j : p.c;
-                                    if (grid[r][c] === wordObj.word[j]) intersections++;
-                                }
-                                validPlacements.push({ ...p, area: width * height, intersections });
-                            }
-                        });
-
-                        validPlacements.sort((a, b) => (a.area - b.area) - (a.intersections * 8 - b.intersections * 8) + (Math.random() * 10 - 5));
-
-                        for (let p of validPlacements) {
-                            let newGrid = grid.map(r => r.slice());
-                            let newPlaced = [...placed];
-                            for (let j = 0; j < wordObj.word.length; j++) {
-                                if (p.dir === 'H') newGrid[p.r][p.c + j] = wordObj.word[j];
-                                else newGrid[p.r + j][p.c] = wordObj.word[j];
-                            }
-                            newPlaced.push({ id: newPlaced.length + 1, type: p.dir, x: p.c, y: p.r, word: wordObj.word, originalObj: wordObj });
-
-                            if (solve(newGrid, newPlaced, nextRemaining)) {
-                                tempGrid = newGrid;
-                                placedWords = newPlaced;
-                                return true;
-                            }
-                            if (newPlaced.length > bestCount) {
-                                bestCount = newPlaced.length;
-                                bestResult = cwShrinkGrid(newGrid, newPlaced);
-                            }
-                        }
-                        if (solve(grid, placed, nextRemaining)) return true;
-                        return false;
-                    }
-
-                    if (solve(tempGrid, placedWords, remainingWords)) {
-                        return cwShrinkGrid(tempGrid, placedWords);
-                    }
+        // 풀마다 "단어 그래프"(같은 음절을 공유하면 이웃 = 십자로 교차 가능)를 한 번만 만들어 캐시.
+        // 한국어 단어는 음절이 겹치는 경우가 드물어서, 아무 단어나 뽑으면 교차가 안 돼 문항이 2~3개에
+        // 멈춘다. 그래서 서로 연결된 덩어리(연결 요소)에서만 골라야 5개 이상이 안정적으로 나온다.
+        const cwGraphCache = new Map();
+        function cwWordGraph(pool) {
+            if (cwGraphCache.has(pool)) return cwGraphCache.get(pool);
+            const byWord = {};
+            pool.forEach(item => { (byWord[item.word] = byWord[item.word] || []).push(item); });
+            const words = Object.keys(byWord);
+            const adj = {};
+            words.forEach(w => adj[w] = []);
+            for (let i = 0; i < words.length; i++) {
+                for (let j = i + 1; j < words.length; j++) {
+                    const a = words[i], b = words[j];
+                    if ([...a].some(c => b.indexOf(c) !== -1)) { adj[a].push(b); adj[b].push(a); }
                 }
-
-                if (bestCount === TARGET_WORDS) return bestResult;
-                if (bestCount > overallBestCount) { overallBestCount = bestCount; overallBestResult = bestResult; }
-                if (overallBestCount >= TARGET_WORDS) break;
             }
-            return overallBestResult;
+            const g = { byWord, words, adj };
+            cwGraphCache.set(pool, g);
+            return g;
+        }
+
+        // 이번 퍼즐에 쓸 "작업 세트": 서로 교차 가능한(연결된) 단어 덩어리를 모은다.
+        // 한국어 단어는 음절이 겹치는 경우가 드물어 몇몇 "허브 단어"(사명자·전도자류, 지팡이류)를
+        // 안 쓰면 5개를 못 채운다. 그래서 허브는 넣되,
+        //  - 시드(첫 단어)는 이번 세션에서 적게 나온 + 최근에 안 쓴 단어에서 고르고,
+        //  - 배치 후보 순서도 적게 나온 단어를 앞에 둬서,
+        // 매번 다른 "덜 나오는 단어"를 중심으로 퍼즐이 짜이게 한다. (허브는 자연히 뒤로 밀려 1~2개만)
+        function cwBuildWorkingSet(pool) {
+            const { byWord, words, adj } = cwWordGraph(pool);
+            const recent = new Set(cwRecentWords);
+            const pickVariant = w => { const v = byWord[w]; return { ...v[Math.floor(Math.random() * v.length)] }; };
+            const useOf = w => (cwWordUseCount[w] || 0);
+            // 적게 나온 단어를 강하게 우선(가중치 큼), 최근에 쓴 건 뒤로, 동점이면 무작위
+            const rank = w => useOf(w) * 1000 + (recent.has(w) ? 300 : 0) + Math.random() * 60;
+            const byRank = arr => arr.slice().sort((a, b) => rank(a) - rank(b));
+
+            // 앵커가 될 수 있는(이웃 2개 이상) 단어들 = 이 풀의 연결 중심 후보. 매번 무작위로
+            // 섞어서(적게 나온 단어에 약간 가중) 한 개를 골라 BFS → 재시도마다 다른 덩어리가 나온다.
+            let anchors = words.filter(w => adj[w].length >= 2);
+            if (!anchors.length) anchors = words.filter(w => adj[w].length >= 1);
+            if (!anchors.length) return byRank(words).map(pickVariant);
+            anchors = byRank(anchors);
+            // 상위(적게 나온) 60% 중에서 무작위 1개
+            const seed = anchors[Math.floor(Math.random() * Math.max(1, Math.ceil(anchors.length * 0.6)))];
+
+            const cluster = [seed];
+            const seen = new Set([seed]);
+            let frontier = cwShuffleArray(adj[seed].slice());
+            while (frontier.length && cluster.length < 13) {
+                const nx = frontier.shift();
+                if (seen.has(nx)) continue;
+                seen.add(nx); cluster.push(nx);
+                cwShuffleArray(adj[nx].filter(w => !seen.has(w))).forEach(n => frontier.push(n));
+            }
+            // 배치 시도 순서: 시드를 맨 앞, 나머지는 "적게 나온 단어" 우선(허브는 자연히 뒤로)
+            const rest = byRank(cluster.filter(w => w !== seed));
+            return [seed].concat(rest).map(pickVariant);
+        }
+
+        // 배치된 단어들이 차지하는 영역(행/열 범위).
+        function cwBoundsOf(placed) {
+            let minR = 999, maxR = -1, minC = 999, maxC = -1;
+            placed.forEach(w => {
+                const h = w.type === 'H';
+                minR = Math.min(minR, w.y); maxR = Math.max(maxR, h ? w.y : w.y + w.word.length - 1);
+                minC = Math.min(minC, w.x); maxC = Math.max(maxC, h ? w.x + w.word.length - 1 : w.x);
+            });
+            return { minR, maxR, minC, maxC };
+        }
+
+        // 한 번의 격자 조합 시도(재귀 백트래킹). words = 이번에 쓸 단어 목록(앞쪽이 우선).
+        // 첫 단어를 가운데 가로로 놓고, 남은 단어를 순서대로 "놓기/건너뛰기" 하며 targetWords 개를
+        // 채운다. 막히면 되돌아가 다른 배치를 시도(원래 코드의 핵심 구조 유지). 격자가 한 변
+        // maxSide 칸을 넘으면 그 배치는 버린다(모바일 화면 대비).
+        function cwTryBuildGrid(words, targetWords, maxW, maxH) {
+            if (!words || words.length < 2) return null;
+            const TS = 40;
+            let best = null, bestN = 0;
+            let ops = 0;
+            const OPS_LIMIT = 8000; // 한 시도의 탐색량 상한(속도 보호)
+
+            const grid0 = Array.from({ length: TS }, () => Array(TS).fill(null));
+            const w0 = words[0];
+            const r0 = TS >> 1, c0 = (TS - w0.word.length) >> 1;
+            for (let i = 0; i < w0.word.length; i++) grid0[r0][c0 + i] = w0.word[i];
+            const placed0 = [{ id: 1, type: 'H', x: c0, y: r0, word: w0.word, originalObj: w0 }];
+
+            function solve(grid, placed, remaining) {
+                if (placed.length > bestN) { bestN = placed.length; best = { grid, placed: placed.slice() }; }
+                if (placed.length >= targetWords) return true;
+                if (ops++ > OPS_LIMIT) return false;
+                if (!remaining.length) return false;
+
+                const wordObj = remaining[0];
+                const rest = remaining.slice(1);
+                const b0 = cwBoundsOf(placed);
+                const spots = cwFindPlacements(grid, wordObj.word);
+                const cands = [];
+                for (const p of spots) {
+                    const L = wordObj.word.length;
+                    const minR = Math.min(b0.minR, p.r);
+                    const maxR = Math.max(b0.maxR, p.dir === 'V' ? p.r + L - 1 : p.r);
+                    const minC = Math.min(b0.minC, p.c);
+                    const maxC = Math.max(b0.maxC, p.dir === 'H' ? p.c + L - 1 : p.c);
+                    const width = maxC - minC + 1, height = maxR - minR + 1;
+                    // 가로로는 넓게(축소되어 화면에 들어감) 허용하되 세로는 짧게 제한 — 한국어 단어는
+                    // 음절이 잘 안 겹쳐서 어느 정도 옆으로 뻗어야 5개 이상이 나온다.
+                    if (width > maxW || height > maxH) continue;
+                    cands.push({ p, area: width + height * 2 }); // 세로로 길어지는 배치에 페널티
+                }
+                // 작은 격자 우선, 무작위 폭 크게 → 매번 다른 배치
+                cands.sort((a, b) => (a.area - b.area) * 0.5 + (Math.random() * 14 - 7));
+
+                for (const { p } of cands) {
+                    const ng = grid.map(r => r.slice());
+                    for (let j = 0; j < wordObj.word.length; j++) {
+                        if (p.dir === 'H') ng[p.r][p.c + j] = wordObj.word[j];
+                        else ng[p.r + j][p.c] = wordObj.word[j];
+                    }
+                    const np = placed.concat([{ id: placed.length + 1, type: p.dir, x: p.c, y: p.r, word: wordObj.word, originalObj: wordObj }]);
+                    if (solve(ng, np, rest)) return true;
+                }
+                // 이 단어를 건너뛰고 다음 단어 시도
+                return solve(grid, placed, rest);
+            }
+
+            solve(grid0, placed0, words.slice(1));
+            if (best && best.placed.length >= 2) return cwShrinkGrid(best.grid, best.placed);
+            return null;
+        }
+
+        function cwGenerateCrossword() {
+            const pool = cwCurrentMode === 'tongdal' ? CW_TONGDAL_POOL : CW_AMGI_POOL;
+            const MIN_WORDS = 5;   // 어떤 경우에도 최소 5문항은 나오도록 보장
+            // 목표는 5개(가끔 6). 이 단어풀은 음절이 잘 안 겹쳐 5개를 만들려면 연결 중심(허브)
+            // 단어가 거의 필수라, 6~7개로 키우면 허브가 여러 개 들어가 매번 비슷해진다. 5개로
+            // 최소화하면 허브 1개 + 나머지 4개가 매번 달라져서 조합이 다양해진다.
+            const target = 5 + Math.floor(Math.random() * 3); // 5~7
+
+            let best = null, bestN = 0;
+            const attempt = (tries, maxW, maxH, want) => {
+                for (let i = 0; i < tries; i++) {
+                    const r = cwTryBuildGrid(cwBuildWorkingSet(pool), want, maxW, maxH);
+                    const n = r && r.placedWords ? r.placedWords.length : 0;
+                    if (n > bestN) { bestN = n; best = r; }
+                    if (bestN >= want && i >= 6) return true; // 목표 달성 후에도 몇 번 더 돌려 더 나은 배치 확보
+                }
+                return false;
+            };
+
+            // 1차: 가로 ≤17 · 세로 ≤10, 목표 5~7
+            attempt(60, 17, 10, target);
+            // 최소 5문항 보장 — 부족하면 격자를 조금씩 키우며 재시도(매 시도 다른 단어 덩어리)
+            if (bestN < MIN_WORDS) attempt(70, 20, 12, MIN_WORDS);
+            if (bestN < MIN_WORDS) attempt(90, 26, 15, MIN_WORDS);
+
+            if (best && best.placedWords) {
+                const usedNow = best.placedWords.map(w => w.word);
+                usedNow.forEach(w => { cwWordUseCount[w] = (cwWordUseCount[w] || 0) + 1; });
+                // 최근 목록: 방금 쓴 단어 + 이전 것들 중 서로 다른 것 8개까지 → 다음 몇 판 동안 뒤로 밀림
+                const merged = [];
+                usedNow.concat(cwRecentWords).forEach(w => { if (merged.indexOf(w) === -1) merged.push(w); });
+                cwRecentWords = merged.slice(0, 8);
+            }
+            return best;
+        }
+
+        // 이 단어풀은 음절 겹침이 적어 한 번 생성으로는 조합이 잘 안 바뀐다. 그래서 미리 여러 개를
+        // 만들어 서로 다른(단어 구성이 겹치지 않는) 것만 은행에 모아두고, "도전"할 때마다 그 중
+        // 하나를 무작위로 꺼낸다. → 매번 다른 문제 + 항상 5문항 이상.
+        const cwPuzzleBank = { tongdal: [], amgi: [] };
+        const CW_BANK_TARGET = 20;
+        function cwSig(result) {
+            return result.placedWords.map(w => w.word).sort().join('|');
+        }
+        function cwFillBank(mode, budgetMs) {
+            const prevMode = cwCurrentMode;
+            cwCurrentMode = mode;
+            const bank = cwPuzzleBank[mode];
+            const sigCount = {};
+            bank.forEach(p => { const s = cwSig(p); sigCount[s] = (sigCount[s] || 0) + 1; });
+            const start = Date.now();
+            let guard = 0;
+            while (bank.length < CW_BANK_TARGET && (Date.now() - start) < budgetMs && guard++ < 500) {
+                const r = cwGenerateCrossword();
+                if (r && r.placedWords && r.placedWords.length >= 5) {
+                    const s = cwSig(r);
+                    // 같은 단어 구성은 최대 2개까지만(배치가 다르면 다른 퍼즐로 침)
+                    if ((sigCount[s] || 0) < 2) { sigCount[s] = (sigCount[s] || 0) + 1; bank.push(r); }
+                }
+            }
+            cwCurrentMode = prevMode;
+        }
+        let cwLastServedSig = '';
+        function cwGetPuzzle(mode) {
+            const bank = cwPuzzleBank[mode];
+            if (!bank.length) cwFillBank(mode, 2500); // 최초 진입: 잠깐 채운다
+            if (!bank.length) return cwGenerateCrossword(); // 그래도 없으면 즉석 생성
+            // 방금 낸 것과 다른 걸 우선으로 무작위 선택
+            let idx = Math.floor(Math.random() * bank.length);
+            if (bank.length > 1 && cwSig(bank[idx]) === cwLastServedSig) idx = (idx + 1) % bank.length;
+            const picked = bank.splice(idx, 1)[0];
+            cwLastServedSig = cwSig(picked);
+            // 사용한 문제는 은행에서 빠지므로, 남은 여유 시간에 백그라운드로 다시 채운다
+            setTimeout(() => cwFillBank(mode, 90), 200);
+            return picked;
         }
 
         function cwFindPlacements(grid, word) {
@@ -2896,7 +3004,15 @@
             cwPreferredDir = null;
 
             setTimeout(() => {
-                const result = cwGenerateCrossword();
+                let result = cwGetPuzzle(cwCurrentMode);
+                // 방어: 극히 드물게 조합에 실패하면 몇 번 더 시도
+                for (let i = 0; i < 3 && (!result || !result.placedWords || result.placedWords.length < 5); i++) {
+                    result = cwGenerateCrossword();
+                }
+                if (!result || !result.placedWords || !result.placedWords.length) {
+                    overlay.classList.add('hidden');
+                    return;
+                }
                 cwCols = result.cols; cwRows = result.rows;
                 cwWordsOnBoard = result.placedWords;
                 cwBuildGridState();
@@ -2922,6 +3038,8 @@
         function initCrosswordPreview() {
             // 화면에 들어올 때마다("도전"할 때마다) 항상 새 문제로 다시 조합한다.
             cwSetMode(cwCurrentMode);
+            // 두 과목 모두 미리 문제 은행을 채워둔다(탭 전환 시 대기 없이 바로 새 문제)
+            setTimeout(() => { cwFillBank('amgi', 700); cwFillBank('tongdal', 700); }, 400);
             document.getElementById('cw-check-btn').onclick = cwCheckAnswers;
             document.getElementById('cw-new-btn').onclick = cwInitGame;
 
