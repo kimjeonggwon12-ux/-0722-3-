@@ -3689,6 +3689,7 @@
   {
    "q": "그들",
    "hl": "그들",
+   "h": "그들 위에",
    "a": "영적 새 이스라엘 12지파",
    "ref": "",
    "v": 15
@@ -5505,6 +5506,7 @@
   {
    "q": "그의 사자들",
    "hl": "그의 사자들",
+   "h": "미가엘과 그의 사자들",
    "a": "하나님의 군대, 천천만만의 천사들(영)과 아이와 형제들(육)",
    "ref": "시 103:20~21, 계 6장, 슥 6장, 계 19장, 계 12:5, 11, ※ 사 24:21, 계 20:4~6",
    "v": 7
@@ -5512,6 +5514,7 @@
   {
    "q": "그의 사자들",
    "hl": "그의 사자들",
+   "h": "용과 그의 사자들",
    "a": "사단의 군대, 이만만의 악령들(영)과 일곱 머리와 열 뿔과 꼬리들(육)",
    "ref": "계 9:15~19",
    "v": 7
@@ -5640,13 +5643,6 @@
    "hl": "너희",
    "a": "땅과 바다",
    "ref": "",
-   "v": 12
-  },
-  {
-   "q": "땅",
-   "hl": "땅",
-   "a": "육체뿐인 사람들(이 있는 세상)",
-   "ref": "계 12:9",
    "v": 12
   },
   {
@@ -6025,6 +6021,7 @@
   {
    "q": "칼",
    "hl": "칼",
+   "h": "칼로 죽이는",
    "a": "거짓 교리",
    "ref": "",
    "v": 10
@@ -6039,6 +6036,7 @@
   {
    "q": "칼",
    "hl": "칼",
+   "h": "칼에 죽으리니",
    "a": "진리의 말씀",
    "ref": "",
    "v": 10
@@ -11430,7 +11428,6 @@
                 { q: "자기의 때", template: "{{무저갱}}에 갇히는 때", ref: "계 20:3", v: 12 },
                 { q: "분내어", template: "이유: {{심판}}이 곧 이를 것을 알기 때문", ref: "계 11:18", v: 12 },
                 { q: "너희", template: "{{땅과 바다}}", ref: "", v: 12 },
-                { q: "땅", template: "{{육체}}뿐인 사람들이 있는 세상", ref: "계 12:9", v: 12 },
                 { q: "남자를 낳은 여자", template: "{{해달별 입은 여자}}", ref: "", v: 13 },
                 { q: "핍박", template: "이유: 만국을 다스릴 {{아이}}를 낳았기 때문", ref: "", v: 13 },
                 { q: "큰 독수리의 두 날개를 받아", template: "{{네 생물}}의 인도를 받음", ref: "출 19:4, 계 4장", v: 14 },
@@ -12158,10 +12155,17 @@
             return (RICH_CHAPTERS[ch] || []).map(it => ({ ch, q: it.q, template: it.template, ref: it.ref || '', v: it.v, hl: it.q }));
         }
 
+        // 계 12:9 "땅"(육체뿐인 사람들이 있는 세상)과 계 12:12 "땅"(배도한 일곱 금촛대 장막 성도들)은
+        // 뜻이 서로 헷갈리기 쉬워 모의고사 출제에서만 제외한다(학습/괄호 넣기 화면은 그대로 유지).
+        const MOCK_EXCLUDE_ITEMS = { 12: [{ q: '땅', v: 9 }, { q: '땅', v: 12 }] };
+
         function pickRangeItems(chFrom, chTo, count) {
             let pool = [];
             for (let ch = chFrom; ch <= chTo; ch++) {
-                pool.push(...(RICH_CHAPTERS[ch] ? buildMockPoolFromRich(ch) : buildMockPoolFromQuizData(ch, ch, 6)));
+                let chPool = RICH_CHAPTERS[ch] ? buildMockPoolFromRich(ch) : buildMockPoolFromQuizData(ch, ch, 6);
+                const excludes = MOCK_EXCLUDE_ITEMS[ch];
+                if (excludes) chPool = chPool.filter(it => !excludes.some(ex => ex.q === it.q && ex.v === it.v));
+                pool.push(...chPool);
             }
             return shuffle(pool).slice(0, count);
         }
@@ -13573,13 +13577,27 @@
         // item.h가 없으면 그 단어가 나오는 모든 자리를 다 강조해버리는데(예: 계 1:1 "그"), 이건
         // 3지선다(quizDataStore, item.h 보유)와 다르게 동작하는 오류다. RICH_CHAPTERS 문항에는
         // h가 없으므로, 같은 장·같은 절·같은 단어(q)의 quizDataStore 문항에서 h를 그대로 가져와
-        // 붙여서 3지선다와 하이라이트 위치가 완전히 같아지도록 한다.
+        // 붙여서 3지선다와 하이라이트 위치가 완전히 같아지도록 한다. 한 절에 같은 단어(q)로 된
+        // 문항이 두 개 이상 있을 때(예: 계 13:10 "칼"이 거짓 교리/진리의 말씀 두 번)는 단순
+        // find()로 첫 번째 것만 계속 매칭하면 둘 다 첫 번째 위치로 하이라이트되므로, 등장 순서를
+        // 맞춰(같은 (v,q) 그룹 안에서 몇 번째인지) 그에 대응하는 quizDataStore 항목의 h를 쓴다.
         function attachVerseHighlightContext(chapterKey, bankItems) {
             const quizItems = quizDataStore[chapterKey] || [];
+            const quizPools = {};
+            quizItems.forEach(qi => {
+                if (!qi.h) return;
+                const key = qi.v + '|' + qi.q;
+                (quizPools[key] = quizPools[key] || []).push(qi);
+            });
+            const usedCount = {};
             bankItems.forEach(item => {
                 if (item.h) return;
-                const match = quizItems.find(qi => qi.v === item.v && qi.q === item.q && qi.h);
-                if (match) item.h = match.h;
+                const key = item.v + '|' + item.q;
+                const pool = quizPools[key];
+                if (!pool) return;
+                const idx = usedCount[key] || 0;
+                const match = pool[idx];
+                if (match) { item.h = match.h; usedCount[key] = idx + 1; }
             });
             return bankItems;
         }
