@@ -233,7 +233,7 @@
         .bread-sign::after { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(233, 199, 123, .35); border-radius: 17px 17px 4px 4px; pointer-events: none; }
         .bread-orn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(233, 199, 123, .7); display: flex; align-items: center; justify-content: center; }
         .bread-orn i { width: 10px; height: 10px; transform: rotate(45deg); background: #e9c77b; }
-        .bread-title { font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
+        .bread-title { white-space: nowrap; min-width: 0; font-family: 'Gowun Batang', serif; font-weight: 700; font-size: clamp(21px, 6.4vw, 26px); line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
         .bread-go { margin-left: auto; flex-shrink: 0; width: 44px; height: 44px; box-shadow: 0 4px 10px -4px rgba(0,0,0,.45); border-radius: 50%; background: #e9c77b; color: #1f2a44; font-size: 28px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
         .bread-body { padding: 16px 16px 14px; }
         .bb-title { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1.2; color: #1f2a44; text-align: center; word-break: keep-all; }
@@ -241,9 +241,9 @@
         .bb-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px 5px 12px; border-radius: 999px; background: #1f2a44; color: #fff6e1; font-size: 13px; font-weight: 800; }
         .bb-chip button { width: 20px; height: 20px; border-radius: 50%; background: rgba(233, 199, 123, .25); color: #e9c77b; font-size: 11px; font-weight: 900; line-height: 1; }
         .bb-empty { font-size: 12px; font-weight: 700; color: #9a8a6e; text-align: center; }
-        .bb-add { display: grid; grid-template-columns: 1fr 72px 60px; gap: 6px; margin-top: 10px; }
-        .bb-add select { height: 38px; border-radius: 12px; border: 1px solid #eadcc0; background: #fff; padding: 0 8px; font-size: 14px; font-weight: 800; color: #1f2a44; }
-        .bb-add button { height: 38px; border-radius: 12px; background: #c8963e; color: #fff; font-size: 14px; font-weight: 900; }
+        .bb-add { display: grid; grid-template-columns: minmax(0, 1fr) 66px 56px; gap: 6px; margin-top: 10px; }
+        .bb-add select { min-width: 0; height: 38px; border-radius: 12px; border: 1px solid #eadcc0; background: #fff; padding: 0 8px; font-size: 14px; font-weight: 800; color: #1f2a44; }
+        .bb-add button { white-space: nowrap; height: 38px; border-radius: 12px; background: #c8963e; color: #fff; font-size: 14px; font-weight: 900; }
         .bb-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
         .bb-stats > div { background: #fff; border: 1px solid #eadcc0; border-radius: 14px; padding: 9px 4px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
         .bb-stats .l { font-size: 11px; font-weight: 800; color: #8a7a5e; line-height: 1.25; }
@@ -259,7 +259,7 @@
         .study-cal .w:first-child { color: #d0735a; }
         .study-cal .d { min-height: 56px; display: flex; flex-direction: column; align-items: stretch; gap: 1px; padding: 3px 3px 4px; border-radius: 10px; background: #f6efdf; color: #7a6647; overflow: hidden; }
         .study-cal .d .n { font-size: 11px; font-weight: 900; line-height: 1.2; padding-left: 2px; }
-        .study-cal .d .s { font-size: 9.5px; font-weight: 900; line-height: 1.25; text-align: center; border-radius: 5px; background: #fff; color: #1f2a44; }
+        .study-cal .d .s { white-space: nowrap; overflow: hidden; letter-spacing: -0.03em; font-size: 9.5px; font-weight: 900; line-height: 1.25; text-align: center; border-radius: 5px; background: #fff; color: #1f2a44; }
         .study-cal .d.done { background: #1f2a44; color: #fff6e1; }
         .study-cal .d.done .s { background: rgba(233, 199, 123, .95); color: #1f2a44; }
         .study-cal .d.today { box-shadow: inset 0 0 0 2px #c8963e; }
@@ -321,19 +321,9 @@
         #root-app-main.memo-layout-desktop #memo-result-details {
             zoom: 1.3;
         }
-        /* 글자 크기 조절(돋보기 버튼): 문제/보기/성구 등 화면 전체를 zoom으로 확대해
-           개별 텍스트 클래스를 일일이 손대지 않고도 모든 화면에 동일하게 적용되게 한다. */
-        body.font-scale-1 #root-app-main { zoom: 1.15; }
-        body.font-scale-2 #root-app-main { zoom: 1.3; }
     </style>
 </head>
 <body class="antialiased">
-    <!-- 글자 크기 조절: 화면 어디서나 항상 눌리는 고정 버튼(기본/크게/아주 크게 3단계) -->
-    <div id="font-scale-control" class="fixed top-2 right-2 z-[9999] flex items-center gap-1.5 bg-white/95 backdrop-blur rounded-full shadow-lg border border-slate-200 px-1.5 py-1.5">
-        <button type="button" onclick="changeFontScale(-1)" aria-label="글자 작게" class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 transition-transform text-[15px] font-black">🔍-</button>
-        <button type="button" onclick="resetFontScale()" aria-label="글자 크기 초기화" class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 transition-transform text-[10px] font-black leading-tight">초기화</button>
-        <button type="button" onclick="changeFontScale(1)" aria-label="글자 크게" class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 transition-transform text-[15px] font-black">🔍+</button>
-    </div>
     <main id="root-app-main" class="container mx-auto px-3 py-4 flex-grow flex flex-col max-w-2xl">
 
         <!-- 로그인 화면 -->
@@ -375,7 +365,7 @@
                     <span class="bread-go">›</span>
                 </a>
                 <div class="bread-body">
-                    <p class="bb-title">내가 신청한 과목 공부 관리</p>
+                    <p class="bb-title">내 공부 관리</p>
                     <div id="my-subject-chips" class="bb-chips"></div>
                     <div class="bb-add">
                         <select id="my-subject-sel" aria-label="과목">
@@ -3775,31 +3765,6 @@
                 checkAutoLogin();
             }, 400);
         })();
-
-        // ─────────────────────────────────────────────────────────
-        // 글자 크기 조절(돋보기 버튼): 기본/크게/아주 크게 3단계, localStorage에 저장해 다음 방문 때도 유지
-        // ─────────────────────────────────────────────────────────
-        const FONT_SCALE_KEY = 'sion_font_scale';
-        const FONT_SCALE_MAX = 2;
-        function loadFontScaleStage() {
-            const n = parseInt(localStorage.getItem(FONT_SCALE_KEY), 10);
-            return (Number.isInteger(n) && n >= 0 && n <= FONT_SCALE_MAX) ? n : 0;
-        }
-        function applyFontScaleStage(stage) {
-            document.body.classList.remove('font-scale-1', 'font-scale-2');
-            if (stage === 1) document.body.classList.add('font-scale-1');
-            if (stage === 2) document.body.classList.add('font-scale-2');
-        }
-        window.changeFontScale = function(delta) {
-            const next = Math.max(0, Math.min(FONT_SCALE_MAX, loadFontScaleStage() + delta));
-            try { localStorage.setItem(FONT_SCALE_KEY, next); } catch (e) { /* 무시 */ }
-            applyFontScaleStage(next);
-        };
-        window.resetFontScale = function() {
-            try { localStorage.setItem(FONT_SCALE_KEY, 0); } catch (e) { /* 무시 */ }
-            applyFontScaleStage(0);
-        };
-        applyFontScaleStage(loadFontScaleStage());
     </script>
 </body>
 </html>
