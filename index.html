@@ -234,8 +234,7 @@
         .bread-orn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(233, 199, 123, .7); display: flex; align-items: center; justify-content: center; }
         .bread-orn i { width: 10px; height: 10px; transform: rotate(45deg); background: #e9c77b; }
         .bread-title { font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
-        .bread-date { font-family: 'Pretendard', sans-serif; letter-spacing: 0; font-size: 13px; font-weight: 800; color: #fff6e1; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(233, 199, 123, .18); border: 1px solid rgba(233, 199, 123, .45); vertical-align: 4px; white-space: nowrap; }
-        .bread-go { margin-left: auto; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #e9c77b; color: #1f2a44; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
+        .bread-go { margin-left: auto; flex-shrink: 0; width: 44px; height: 44px; box-shadow: 0 4px 10px -4px rgba(0,0,0,.45); border-radius: 50%; background: #e9c77b; color: #1f2a44; font-size: 28px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
         .bread-body { padding: 16px 16px 14px; }
         .bb-title { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1.2; color: #1f2a44; text-align: center; word-break: keep-all; }
         .bb-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
@@ -372,7 +371,7 @@
             <section class="bread-board">
                 <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
                     <span class="bread-orn"><i></i></span>
-                    <span class="bread-title">오늘의 양식<span class="bread-date" id="bread-date"></span></span>
+                    <span class="bread-title">오늘의 양식</span>
                     <span class="bread-go">›</span>
                 </a>
                 <div class="bread-body">
@@ -2273,13 +2272,7 @@
             return mine.length ? hist.filter(r => mine.includes(r.key)) : hist;
         }
         function myStudyPrevDay(ds) { const t = new Date(ds + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); }
-        function renderBreadDate() {
-            const el = document.getElementById('bread-date'); if (!el) return;
-            const [y, m, d] = kstToday().split('-').map(Number);
-            el.textContent = `${m}월 ${d}일 ${'일월화수목금토'[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]}요일`;
-        }
         function renderMyStudy() {
-            renderBreadDate();
             const chipsEl = document.getElementById('my-subject-chips'); if (!chipsEl) return;
             const mine = loadMySubjects();
             chipsEl.innerHTML = mine.length
