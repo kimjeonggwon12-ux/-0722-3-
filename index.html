@@ -227,7 +227,7 @@
         .memo-inline-input:focus { border-color: #a21caf; background: #fae8ff; }
 
         /* 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 — 먹빛 남색 · 금빛 · 크림 톤 한 장 */
-        .bread-board { width: min(100%, 420px); margin: 16px auto 0; border-radius: 22px; overflow: hidden; background: #fffaf0; border: 1px solid #eadcc0; box-shadow: 0 10px 24px -12px rgba(60, 45, 20, .35); }
+        .bread-board { width: min(100%, 420px); margin: 0 auto 16px; border-radius: 22px; overflow: hidden; background: #fffaf0; border: 1px solid #eadcc0; box-shadow: 0 10px 24px -12px rgba(60, 45, 20, .35); }
         .bread-sign { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: linear-gradient(135deg, #1f2a44 0%, #2c3b5e 100%); color: #fff; transition: filter .12s ease; }
         .bread-sign:active { filter: brightness(1.12); }
         .bread-sign::after { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(233, 199, 123, .35); border-radius: 17px 17px 4px 4px; pointer-events: none; }
@@ -348,19 +348,6 @@
 
         <!-- 방 선택 화면 -->
         <div id="view-rooms" class="hidden flex-col flex-grow justify-center items-center py-6 fade-in">
-            <div class="rooms-photo">
-                <a href="신학기초/index.html" class="rooms-hotspot" data-study="1" style="left:5%; top:33%; width:30%; height:32%;" aria-label="초중고 신학 공부방"></a>
-                <a href="도통계시록/index.html" class="rooms-hotspot" data-study="1" style="left:37%; top:33%; width:29%; height:32%;" aria-label="계시록 통달 공부방"></a>
-                <a href="계시록암기/index.html" class="rooms-hotspot" data-study="1" style="left:68%; top:33%; width:28%; height:32%;" aria-label="계시록 암기 공부방"></a>
-
-                <a href="신학기초/index.html#grade" data-study="1" class="rooms-hotspot rooms-hotspot-mock" style="left:3%; top:67%; width:30%; height:6.5%;" aria-label="초중고 신학 모의고사"></a>
-                <a href="도통계시록/index.html#grade" data-study="1" class="rooms-hotspot rooms-hotspot-mock" style="left:35%; top:67%; width:29%; height:6.5%;" aria-label="계시록 통달 모의고사"></a>
-                <a href="#memorize-grade" data-study="1" onclick="showMemorizeGrade()" class="rooms-hotspot rooms-hotspot-mock" style="left:66%; top:67%; width:28%; height:6.5%;" aria-label="계시록 암기 모의고사"></a>
-
-                <a href="#examinfo" onclick="showExamInfo()" class="rooms-hotspot" style="left:5%; top:75%; width:27%; height:19%;" aria-label="시험 안내"></a>
-                <a href="#apply" onclick="showApplyMenu()" class="rooms-hotspot" style="left:34%; top:76.5%; width:60%; height:19%;" aria-label="계시록 통달 자격증 시험 신청하기"></a>
-            </div>
-
             <!-- 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 (모두 이 기기 localStorage) -->
             <section class="bread-board">
                 <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
@@ -400,6 +387,19 @@
                     <p class="bb-hint">오늘의 양식을 풀면 달력에 점수가 적혀요(하루 최근 3개). 공부방·모의고사에 들어간 날도 체크돼요. 기록은 이 기기에만 저장됩니다.</p>
                 </div>
             </section>
+
+            <div class="rooms-photo">
+                <a href="신학기초/index.html" class="rooms-hotspot" data-study="1" style="left:5%; top:33%; width:30%; height:32%;" aria-label="초중고 신학 공부방"></a>
+                <a href="도통계시록/index.html" class="rooms-hotspot" data-study="1" style="left:37%; top:33%; width:29%; height:32%;" aria-label="계시록 통달 공부방"></a>
+                <a href="계시록암기/index.html" class="rooms-hotspot" data-study="1" style="left:68%; top:33%; width:28%; height:32%;" aria-label="계시록 암기 공부방"></a>
+
+                <a href="신학기초/index.html#grade" data-study="1" class="rooms-hotspot rooms-hotspot-mock" style="left:3%; top:67%; width:30%; height:6.5%;" aria-label="초중고 신학 모의고사"></a>
+                <a href="도통계시록/index.html#grade" data-study="1" class="rooms-hotspot rooms-hotspot-mock" style="left:35%; top:67%; width:29%; height:6.5%;" aria-label="계시록 통달 모의고사"></a>
+                <a href="#memorize-grade" data-study="1" onclick="showMemorizeGrade()" class="rooms-hotspot rooms-hotspot-mock" style="left:66%; top:67%; width:28%; height:6.5%;" aria-label="계시록 암기 모의고사"></a>
+
+                <a href="#examinfo" onclick="showExamInfo()" class="rooms-hotspot" style="left:5%; top:75%; width:27%; height:19%;" aria-label="시험 안내"></a>
+                <a href="#apply" onclick="showApplyMenu()" class="rooms-hotspot" style="left:34%; top:76.5%; width:60%; height:19%;" aria-label="계시록 통달 자격증 시험 신청하기"></a>
+            </div>
 
             <div class="flex items-center gap-2 mt-3 flex-wrap justify-center">
                 <button onclick="showSuggest()" class="suggest-badge">
