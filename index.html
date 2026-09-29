@@ -235,7 +235,6 @@
         .bread-orn i { width: 10px; height: 10px; transform: rotate(45deg); background: #e9c77b; }
         .bread-title { font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
         .bread-date { font-family: 'Pretendard', sans-serif; letter-spacing: 0; font-size: 13px; font-weight: 800; color: #fff6e1; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(233, 199, 123, .18); border: 1px solid rgba(233, 199, 123, .45); vertical-align: 4px; white-space: nowrap; }
-        .bread-sub { font-size: 12.5px; font-weight: 800; color: rgba(255, 246, 225, .85); margin-top: 3px; }
         .bread-go { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 14px; padding: 13px 0; border-radius: 16px;
                     background: linear-gradient(135deg, #f6d98f 0%, #e3b04f 100%); color: #1f2a44; font-family: 'Jua', sans-serif; font-size: 20px;
                     box-shadow: 0 8px 18px -6px rgba(227, 176, 79, .75), inset 0 -3px 0 rgba(0, 0, 0, .12); animation: breadGoGlow 2.2s ease-in-out infinite; transition: transform .12s ease; }
@@ -272,9 +271,6 @@
         .study-cal .d.today { box-shadow: inset 0 0 0 2px #c8963e; }
         .study-cal .d.future { background: transparent; color: #d6c9ae; }
         .study-cal .d.exam { background: #fbe4dc; color: #c2410c; }
-        .bb-today { width: 100%; margin-top: 12px; padding: 12px 0; border-radius: 14px; font-size: 15px; font-weight: 900; }
-        .bb-today.off { background: #1f2a44; color: #e9c77b; box-shadow: 0 6px 14px -8px rgba(31, 42, 68, .7); }
-        .bb-today.on { background: #fff; color: #7a6647; border: 1.5px solid #e2d3b3; }
         .bb-hint { font-size: 11px; font-weight: 700; color: #a8987a; margin-top: 8px; text-align: center; word-break: keep-all; }
 
         /* 커뮤니티: 홈 화면 버튼 위 빨간 NEW 뱃지 */
@@ -384,7 +380,6 @@
                         <span class="bread-orn"><i></i></span>
                         <div>
                             <p class="bread-title">오늘의 양식<span class="bread-date" id="bread-date"></span></p>
-                            <p class="bread-sub">매일 과목별로 10문제</p>
                         </div>
                     </div>
                     <a href="오늘의양식/index.html" class="bread-go">오늘의 10문제 풀기 <b>›</b></a>
@@ -418,7 +413,6 @@
                         <button type="button" id="study-next-btn" onclick="shiftStudyMonth(1)" aria-label="다음 달">›</button>
                     </div>
                     <div id="study-cal" class="study-cal"></div>
-                    <button type="button" id="study-today-btn" onclick="toggleStudyToday()" class="bb-today"></button>
                     <p class="bb-hint">오늘의 양식을 풀면 달력에 점수가 적혀요(하루 최근 3개). 공부방·모의고사에 들어간 날도 체크돼요. 기록은 이 기기에만 저장됩니다.</p>
                 </div>
             </section>
@@ -2232,7 +2226,6 @@
         function loadStudyDays() { try { const a = JSON.parse(localStorage.getItem(STUDY_DAYS_KEY)); return new Set(Array.isArray(a) ? a : []); } catch (e) { return new Set(); } }
         function saveStudyDays(set) { try { localStorage.setItem(STUDY_DAYS_KEY, JSON.stringify([...set].sort())); } catch (e) {} }
         function markStudyToday() { const d = loadStudyDays(); if (!d.has(kstToday())) { d.add(kstToday()); saveStudyDays(d); } }
-        function toggleStudyToday() { const d = loadStudyDays(), t = kstToday(); d.has(t) ? d.delete(t) : d.add(t); saveStudyDays(d); renderStudyCalendar(); }
         let studyMonth = kstToday().slice(0, 7);
         function shiftStudyMonth(n) {
             const [y, m] = studyMonth.split('-').map(Number);
@@ -2259,9 +2252,6 @@
             cal.innerHTML = html;
             document.getElementById('study-cal-title').textContent = `${y}년 ${m}월`;
             document.getElementById('study-next-btn').disabled = studyMonth >= today.slice(0, 7);
-            const btn = document.getElementById('study-today-btn'), doneToday = days.has(today);
-            btn.textContent = doneToday ? '오늘 공부 완료! (누르면 체크 해제)' : '오늘 공부 체크하기';
-            btn.className = 'bb-today ' + (doneToday ? 'on' : 'off');
         }
         document.addEventListener('click', e => { if (e.target.closest('[data-study]')) markStudyToday(); }, true);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) { renderStudyCalendar(); renderMyStudy(); } });
