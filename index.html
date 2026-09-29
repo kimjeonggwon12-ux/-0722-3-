@@ -234,7 +234,11 @@
         .bread-orn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(233, 199, 123, .7); display: flex; align-items: center; justify-content: center; }
         .bread-orn i { width: 10px; height: 10px; transform: rotate(45deg); background: #e9c77b; }
         .bread-title { white-space: nowrap; min-width: 0; font-family: 'Gowun Batang', serif; font-weight: 700; font-size: clamp(21px, 6.4vw, 26px); line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
-        .bread-go { margin-left: auto; flex-shrink: 0; width: 44px; height: 44px; box-shadow: 0 4px 10px -4px rgba(0,0,0,.45); border-radius: 50%; background: #e9c77b; color: #1f2a44; font-size: 28px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
+        .bread-go { margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 8px 0 14px; border-radius: 999px;
+                    background: linear-gradient(135deg, #f6d98f 0%, #e3b04f 100%); color: #1f2a44; font-family: 'Jua', sans-serif; font-size: 16px; white-space: nowrap;
+                    box-shadow: 0 4px 10px -4px rgba(0,0,0,.45), inset 0 -2px 0 rgba(0,0,0,.1); }
+        .bread-go b { width: 26px; height: 26px; border-radius: 50%; background: #1f2a44; color: #e9c77b; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; animation: breadNudge 1.4s ease-in-out infinite; }
+        @keyframes breadNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
         .bread-body { padding: 16px 16px 14px; }
         .bb-title { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1.2; color: #1f2a44; text-align: center; word-break: keep-all; }
         .bb-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
@@ -362,7 +366,7 @@
                 <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
                     <span class="bread-orn"><i></i></span>
                     <span class="bread-title">오늘의 양식</span>
-                    <span class="bread-go">›</span>
+                    <span class="bread-go">풀러 가기 <b>›</b></span>
                 </a>
                 <div class="bread-body">
                     <p class="bb-title">내 공부 관리</p>
