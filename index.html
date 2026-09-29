@@ -226,12 +226,6 @@
         }
         .memo-inline-input:focus { border-color: #a21caf; background: #fae8ff; }
 
-        /* 11월 15일 계시록 통달 자격증 시험 D-day 카드 */
-        .exam-dday-card { background: linear-gradient(135deg, #312e81 0%, #4338ca 55%, #7c3aed 100%); color: #fff; border-radius: 20px; padding: 16px 18px; box-shadow: 0 8px 20px -8px rgba(67,56,202,.6); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .exam-dday-card .dd-label { font-size: 13px; font-weight: 800; color: #e0e7ff; line-height: 1.35; }
-        .exam-dday-card .dd-date { font-size: 12px; font-weight: 700; color: #c7d2fe; margin-top: 2px; }
-        .exam-dday-card .dd-value { font-size: 40px; font-weight: 900; line-height: 1; color: #fde68a; letter-spacing: -0.02em; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,.25); }
-
         /* 커뮤니티: 홈 화면 버튼 위 빨간 NEW 뱃지 */
         .community-new-badge {
             position: absolute; top: -7px; right: -6px;
@@ -330,17 +324,6 @@
 
                 <a href="#examinfo" onclick="showExamInfo()" class="rooms-hotspot" style="left:5%; top:75%; width:27%; height:19%;" aria-label="시험 안내"></a>
                 <a href="#apply" onclick="showApplyMenu()" class="rooms-hotspot" style="left:34%; top:76.5%; width:60%; height:19%;" aria-label="계시록 통달 자격증 시험 신청하기"></a>
-            </div>
-
-            <!-- 11월 15일 시험 D-day (한국 시간 오늘 기준, 시험 당일 D-0, 지나면 D+N) -->
-            <div class="w-full" style="max-width:420px; margin:16px auto 0;">
-                <div class="exam-dday-card">
-                    <div>
-                        <p class="dd-label break-keep">계시록 통달 자격증 시험까지</p>
-                        <p class="dd-date">신 43년 11월 15일(일)</p>
-                    </div>
-                    <span id="exam-dday-value" class="dd-value">D-0</span>
-                </div>
             </div>
 
             <!-- 종강 시험 문항 변경 공지 배너 -->
@@ -2149,20 +2132,6 @@
         function showApplyMenu() { showView('view-apply-menu'); }
         function showApply() { resetApplyForm(); showView('view-apply'); }
         function showApplyCancel() { showView('view-applycancel'); }
-        // 11월 15일 계시록 통달 자격증 시험 D-day — 한국 시간 오늘 기준으로 매번 계산(당일 D-0일, 이후 D+N일).
-        // 앱을 켜 둔 채 자정이 지나도 바뀌도록 1분마다·화면 복귀 시 다시 계산한다.
-        const EXAM_DDAY_DATE = '2026-11-15';
-        function renderExamDday() {
-            const el = document.getElementById('exam-dday-value');
-            if (!el) return;
-            const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
-            const left = Math.round((new Date(EXAM_DDAY_DATE + 'T00:00:00Z') - new Date(today + 'T00:00:00Z')) / 864e5);
-            el.textContent = left >= 0 ? `D-${left}` : `D+${-left}`;
-        }
-        renderExamDday();
-        setInterval(renderExamDday, 60000);
-        document.addEventListener('visibilitychange', () => { if (!document.hidden) renderExamDday(); });
-
         // ─────────────────────────────────────────────────────────
         // 홈 화면 "나의 학습 현황" 미니 패널 — 로그인 직후 바로 보이는 자리에서
         // 각 과목의 실제 진행 흔적(같은 브라우저 localStorage, 동일 출처라 하위 폴더 앱과 공유됨)을
