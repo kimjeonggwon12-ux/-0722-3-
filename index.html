@@ -228,19 +228,14 @@
 
         /* 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 — 먹빛 남색 · 금빛 · 크림 톤 한 장 */
         .bread-board { width: min(100%, 420px); margin: 16px auto 0; border-radius: 22px; overflow: hidden; background: #fffaf0; border: 1px solid #eadcc0; box-shadow: 0 10px 24px -12px rgba(60, 45, 20, .35); }
-        .bread-sign { position: relative; display: block; padding: 16px 18px 16px; background: linear-gradient(135deg, #1f2a44 0%, #2c3b5e 100%); color: #fff; }
-        .bread-head { display: flex; align-items: center; gap: 12px; }
+        .bread-sign { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: linear-gradient(135deg, #1f2a44 0%, #2c3b5e 100%); color: #fff; transition: filter .12s ease; }
+        .bread-sign:active { filter: brightness(1.12); }
         .bread-sign::after { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(233, 199, 123, .35); border-radius: 17px 17px 4px 4px; pointer-events: none; }
         .bread-orn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(233, 199, 123, .7); display: flex; align-items: center; justify-content: center; }
         .bread-orn i { width: 10px; height: 10px; transform: rotate(45deg); background: #e9c77b; }
         .bread-title { font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: #e9c77b; letter-spacing: .02em; }
         .bread-date { font-family: 'Pretendard', sans-serif; letter-spacing: 0; font-size: 13px; font-weight: 800; color: #fff6e1; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: rgba(233, 199, 123, .18); border: 1px solid rgba(233, 199, 123, .45); vertical-align: 4px; white-space: nowrap; }
-        .bread-go { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 14px; padding: 13px 0; border-radius: 16px;
-                    background: linear-gradient(135deg, #f6d98f 0%, #e3b04f 100%); color: #1f2a44; font-family: 'Jua', sans-serif; font-size: 20px;
-                    box-shadow: 0 8px 18px -6px rgba(227, 176, 79, .75), inset 0 -3px 0 rgba(0, 0, 0, .12); animation: breadGoGlow 2.2s ease-in-out infinite; transition: transform .12s ease; }
-        .bread-go:active { transform: scale(.97); }
-        .bread-go b { width: 26px; height: 26px; border-radius: 50%; background: #1f2a44; color: #e9c77b; font-size: 18px; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
-        @keyframes breadGoGlow { 0%, 100% { box-shadow: 0 8px 18px -6px rgba(227, 176, 79, .75), 0 0 0 0 rgba(246, 217, 143, .55), inset 0 -3px 0 rgba(0, 0, 0, .12); } 50% { box-shadow: 0 8px 18px -6px rgba(227, 176, 79, .75), 0 0 0 7px rgba(246, 217, 143, 0), inset 0 -3px 0 rgba(0, 0, 0, .12); } }
+        .bread-go { margin-left: auto; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #e9c77b; color: #1f2a44; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
         .bread-body { padding: 16px 16px 14px; }
         .bb-title { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1.2; color: #1f2a44; text-align: center; word-break: keep-all; }
         .bb-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
@@ -375,15 +370,11 @@
 
             <!-- 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 (모두 이 기기 localStorage) -->
             <section class="bread-board">
-                <div class="bread-sign">
-                    <div class="bread-head">
-                        <span class="bread-orn"><i></i></span>
-                        <div>
-                            <p class="bread-title">오늘의 양식<span class="bread-date" id="bread-date"></span></p>
-                        </div>
-                    </div>
-                    <a href="오늘의양식/index.html" class="bread-go">오늘의 10문제 풀기 <b>›</b></a>
-                </div>
+                <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
+                    <span class="bread-orn"><i></i></span>
+                    <span class="bread-title">오늘의 양식<span class="bread-date" id="bread-date"></span></span>
+                    <span class="bread-go">›</span>
+                </a>
                 <div class="bread-body">
                     <p class="bb-title">내가 신청한 과목 공부 관리</p>
                     <div id="my-subject-chips" class="bb-chips"></div>
