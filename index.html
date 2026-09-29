@@ -51,46 +51,6 @@
             50% { box-shadow: 0 0 0 10px rgba(216, 180, 254, 0); }
         }
 
-        /* 시험 일정 LED 전광판 배너: 글자가 옆으로 흐르는 전광판 효과 */
-        .led-banner {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 16px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: linear-gradient(90deg, #fbbf24, #fb923c, #f472b6, #a78bfa, #fbbf24);
-            background-size: 300% 100%;
-            animation: ledBgShift 8s ease-in-out infinite;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-        }
-        .led-banner-track {
-            display: flex;
-            width: max-content;
-            white-space: nowrap;
-            animation: ledScroll 16s linear infinite;
-        }
-        .led-banner-track span {
-            display: inline-block;
-            padding: 16px 8px;
-            font-weight: 900;
-            font-size: 22px;
-            letter-spacing: 1px;
-            color: #ffffff;
-            text-shadow: 0 0 4px rgba(255,255,255,0.7), 0 1px 3px rgba(0,0,0,0.2);
-        }
-        .led-highlight {
-            color: #ccff00;
-            text-shadow: 0 0 5px rgba(204,255,0,0.9), 0 0 14px rgba(204,255,0,0.7), 0 0 22px rgba(204,255,0,0.4);
-        }
-        @keyframes ledBgShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        @keyframes ledScroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-
         /* 뒤로가기/홈 버튼: 옅은 회색 글자만 있던 걸 항상 눈에 띄는 알약 배지 + 은은한 펄스 발광으로 강조 */
         .nav-back-glow {
             display: inline-flex;
@@ -343,9 +303,6 @@
 
         <!-- 로그인 화면 -->
         <div id="view-login" class="flex flex-col flex-grow justify-center items-center py-2 fade-in">
-            <video controls playsinline style="width:100%;max-width:600px;border-radius:12px;display:block;margin:0 auto 16px;" poster="assets/promo-thumb.jpg">
-                <source src="assets/promo.mp4" type="video/mp4">
-            </video>
             <div class="login-photo">
                 <div class="login-input-zone">
                     <p id="login-error-msg" class="absolute bottom-full left-0 right-0 mb-2 text-rose-600 text-[13px] font-bold opacity-0 transition-opacity text-center bg-white/90 rounded-full px-3 py-1.5 shadow-sm">코드가 올바르지 않거나 조건에 맞지 않습니다.</p>
@@ -356,14 +313,6 @@
                         <input type="password" id="entry-code-input" autocomplete="current-password" class="flex-grow min-w-0 bg-transparent border-none outline-none px-3 py-2 text-slate-700 font-bold tracking-[0.2em] placeholder:text-slate-500 placeholder:font-normal placeholder:tracking-normal" placeholder="암호 입력" oninput="checkAutoLogin()" onchange="checkAutoLogin()" onkeydown="if(event.key==='Enter') checkLogin()" onanimationstart="handleEntryAutofillDetected(event)">
                         <button onclick="checkLogin()" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-4 py-2 text-sm font-black transition-colors flex-shrink-0">입장</button>
                     </div>
-                </div>
-            </div>
-
-            <!-- 시험 일정 LED 전광판 배너 -->
-            <div class="led-banner mt-4">
-                <div class="led-banner-track">
-                    <span>🔔 계시록 통달 자격증 시험일정 · 신 43년 11월 15일(일) · <span class="led-highlight">등과 기름 준비하세요.</span> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <span aria-hidden="true">🔔 계시록 통달 자격증 시험일정 · 신 43년 11월 15일(일) · <span class="led-highlight">등과 기름 준비하세요.</span> &nbsp;&nbsp;&nbsp;&nbsp;</span>
                 </div>
             </div>
         </div>
