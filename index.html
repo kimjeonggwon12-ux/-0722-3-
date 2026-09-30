@@ -335,6 +335,7 @@
            옮긴 위치는 기억된다. 기본 위치는 뒤로가기 버튼(왼쪽 위)과 겹치지 않는 오른쪽 아래. */
         #font-scale-control { position: fixed; right: 12px; bottom: 16px; z-index: 9999; display: flex; align-items: center; gap: 5px; padding: 5px; border-radius: 9999px; background: rgba(255,255,255,.96); border: 1px solid #e2e8f0; box-shadow: 0 6px 16px -4px rgba(0,0,0,.25); touch-action: none; user-select: none; -webkit-user-select: none; }
         #font-scale-control.dragging { opacity: .85; box-shadow: 0 10px 24px -4px rgba(0,0,0,.35); }
+        #font-scale-control { cursor: grab; }
         #font-scale-control .fs-handle { width: 30px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 9999px; color: #94a3b8; font-size: 18px; font-weight: 900; cursor: grab; touch-action: none; }
         #font-scale-control.dragging .fs-handle { cursor: grabbing; color: #475569; }
         #font-scale-control button { height: 38px; min-width: 40px; padding: 0 8px; border-radius: 9999px; background: #f1f5f9; font-size: 13px; font-weight: 900; color: #334155; }
@@ -3827,56 +3828,7 @@
             applyFontScaleStage(0);
         };
         applyFontScaleStage(loadFontScaleStage());
-
-        // 돋보기 버튼 끌어서 옮기기: ⠿ 손잡이를 잡고 끌면 이동, 위치는 localStorage에 저장
-        (function() {
-            const POS_KEY = 'sion_font_scale_pos';
-            const box = document.getElementById('font-scale-control');
-            const handle = box.querySelector('.fs-handle');
-            function place(left, top) {
-                const maxL = window.innerWidth - box.offsetWidth - 4;
-                const maxT = window.innerHeight - box.offsetHeight - 4;
-                left = Math.max(4, Math.min(maxL, left));
-                top = Math.max(4, Math.min(maxT, top));
-                box.style.left = left + 'px';
-                box.style.top = top + 'px';
-                box.style.right = 'auto';
-                box.style.bottom = 'auto';
-                return { left, top };
-            }
-            try {
-                const saved = JSON.parse(localStorage.getItem(POS_KEY));
-                if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) place(saved.left, saved.top);
-            } catch (e) { /* 무시 */ }
-
-            let dx = 0, dy = 0, dragging = false;
-            handle.addEventListener('pointerdown', function(e) {
-                const r = box.getBoundingClientRect();
-                dx = e.clientX - r.left;
-                dy = e.clientY - r.top;
-                dragging = true;
-                box.classList.add('dragging');
-                handle.setPointerCapture(e.pointerId);
-                e.preventDefault();
-            });
-            handle.addEventListener('pointermove', function(e) {
-                if (!dragging) return;
-                place(e.clientX - dx, e.clientY - dy);
-            });
-            function endDrag() {
-                if (!dragging) return;
-                dragging = false;
-                box.classList.remove('dragging');
-                const r = box.getBoundingClientRect();
-                try { localStorage.setItem(POS_KEY, JSON.stringify({ left: r.left, top: r.top })); } catch (e) { /* 무시 */ }
-            }
-            handle.addEventListener('pointerup', endDrag);
-            handle.addEventListener('pointercancel', endDrag);
-            // 화면을 돌리거나 크기가 바뀌어도 화면 밖으로 나가지 않게
-            window.addEventListener('resize', function() {
-                if (box.style.left) { const r = box.getBoundingClientRect(); place(r.left, r.top); }
-            });
-        })();
     </script>
+    <script src="font-scale-drag.js"></script>
 </body>
 </html>
