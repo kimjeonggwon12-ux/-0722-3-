@@ -106,9 +106,11 @@
 
         <!-- 과목 · 급수 탭 -->
         <div id="picker" class="card p-3">
+            <div id="my-subj-row"></div>
             <div id="subject-tabs" class="grid grid-cols-3 gap-2"></div>
             <div id="grade-tabs" class="gtabs mt-3"></div>
             <p id="pick-range" class="text-[12px] font-bold text-c2 mt-3 text-center break-keep"></p>
+            <button type="button" id="my-subj-toggle" class="block mx-auto mt-2 px-4 py-1.5 rounded-full text-[12px] font-black"></button>
             <div id="resume-box"></div>
             <button id="start-btn" class="w-full mt-2 py-3.5 rounded-2xl bg-grad text-white font-jua text-[19px] shadow-md">새 10문제 풀기 →</button>
         </div>
@@ -205,6 +207,15 @@ function markSionStudyDay() {
 }
 function saveStore() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {} }
 const store = loadStore();
+
+// 2026-09-30: 내 과목 — 시온 공부방 홈 '내 공부 관리'와 같은 기록(localStorage 'sion_my_subjects')을 쓴다.
+// 여기서 저장해도 홈에 그대로 보이고, 다음에 들어오면 내 과목이 골라진 채로 시작한다.
+const MY_SUBJ_KEY = 'sion_my_subjects';
+function loadMySubj() {
+    try { const a = JSON.parse(localStorage.getItem(MY_SUBJ_KEY)); return Array.isArray(a) ? a.filter(k => /^(theology|tongdal|memo)-grade[1-4]$/.test(k)) : []; } catch (e) { return []; }
+}
+function saveMySubj(list) { try { localStorage.setItem(MY_SUBJ_KEY, JSON.stringify(list)); } catch (e) {} }
+(function () { const mine = loadMySubj(); if (mine.length && !mine.includes(store.sel)) { store.sel = mine[0]; try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {} } })();
 
 // ───────── 날짜 (한국 시간) ─────────
 const kstDate = ts => new Date(ts + 9 * 3600e3).toISOString().slice(0, 10);
@@ -312,7 +323,28 @@ function matchTongdal(u, a) {
     const un = norm(u), an = norm(a); if (!un) return false;
     if (un === an) return true;
     const up = noParticle(un);
-    return up === an || syn(up) === syn(an) || noUnit(un) === noUnit(an) || noUnit(up) === noUnit(an) || spell(un) === spell(an) || spell(up) === spell(an);
+    return up === an || syn(up) === syn(an) || noUnit(un) === noUnit(an) || noUnit(up) === noUnit(an) || spell(un) === spell(an) || spell(up) === spell(an) || orderFreeMatch(u, a);
+}
+// 2026-09-30: 답이 여러 단어/항목이면 순서를 바꿔 써도 정답(예: "교리와 교법" ← "교법 교리").
+// 도통계시록 g4OrderFreeMatches와 같은 규칙. 항목 2~6개일 때만.
+function answerUnits(a) {
+    let units = String(a || '').split(/,(?!\d)|[·ㆍ\/]/).map(x => x.trim()).filter(Boolean);
+    if (units.length < 2) units = String(a || '').trim().split(/\s+/);
+    return units.map(x => norm(x).replace(/(와|과|및)$/, '')).filter(Boolean);
+}
+function permutations(arr) {
+    if (arr.length <= 1) return [arr];
+    const out = [];
+    arr.forEach((x, i) => permutations(arr.slice(0, i).concat(arr.slice(i + 1))).forEach(p => out.push([x, ...p])));
+    return out;
+}
+function orderFreeMatch(u, a) {
+    const units = answerUnits(a);
+    if (units.length < 2 || units.length > 6) return false;
+    const canon = x => spell(syn(noUnit(x)));
+    const un = canon(norm(u)); if (!un) return false;
+    const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return permutations(units.map(canon)).some(o => new RegExp('^' + o.map(reEsc).join('(?:와|과|및)?') + '(?:와|과|은|는|이|가|을|를|도|의|들)?$').test(un));
 }
 function matchMemo(u, a) { const un = spell(norm(u)); return !!un && un === spell(norm(a)); }
 // 신학 서술형: 핵심 어구의 80% 이상이 들어 있으면 정답 (괄호 속 성구·※ 보충설명은 채점에서 제외)
@@ -326,7 +358,17 @@ function matchTheology(u, a) {
 }
 function gradeQuestion(q, answers) {
     const m = q.type === 'th' ? matchTheology : q.type === 'td' ? matchTongdal : matchMemo;
-    return q.parts.map((p, i) => m(answers[i], p));
+    const ok = q.parts.map((p, i) => m(answers[i], p));
+    // 계시록 통달: 한 문항의 빈칸끼리 자리를 바꿔 써도 정답
+    if (q.type === 'td' && q.parts.length > 1) {
+        const pool = q.parts.map((p, i) => ok[i] ? null : p);
+        ok.forEach((v, i) => {
+            if (v || !String(answers[i] || '').trim()) return;
+            const k = pool.findIndex((p, j) => p != null && j !== i && matchTongdal(answers[i], p));
+            if (k !== -1) { ok[i] = true; pool[k] = null; }
+        });
+    }
+    return ok;
 }
 // 문항당 10점. 빈칸/소문항이 여러 개면 맞힌 비율만큼 부분 점수. "정답 인정"한 문항은 10점.
 function qPoints(rec, i) { return rec.overrides[i] ? 10 : 10 * rec.results[i].filter(Boolean).length / rec.results[i].length; }
@@ -380,6 +422,11 @@ function renderHome() {
         return `<button class="gtab ${k === g ? 'on' : ''}" data-grade="${k}"><div class="g">${gradeLabel(k)}</div><div class="m">${last ? '최근 ' + last.score + '점' : '10문항'}</div></button>`;
     }).join('');
     $('pick-range').textContent = `출제 범위: ${rangeOf(store.sel)}`;
+    const mine = loadMySubj(), isMine = mine.includes(store.sel);
+    $('my-subj-row').innerHTML = mine.length ? `<div class="flex items-center gap-1.5 flex-wrap mb-3"><span class="text-[12px] font-black text-slate-500 mr-1">내 과목</span>${mine.map(k => `<button type="button" data-mysel="${k}" class="px-3 py-1 rounded-full text-[12px] font-black ${k === store.sel ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600'}">${examName(k)}</button>`).join('')}</div>` : '';
+    const tg = $('my-subj-toggle');
+    tg.textContent = isMine ? '★ 내 과목으로 저장됨 (누르면 해제)' : '☆ 이 과목을 내 과목으로 저장';
+    tg.className = 'block mx-auto mt-2 px-4 py-1.5 rounded-full text-[12px] font-black ' + (isMine ? 'bg-amber-50 text-amber-700 border border-amber-300' : 'bg-white text-slate-500 border border-slate-300');
 
     const c = store.current;
     $('resume-box').innerHTML = c && c.key === store.sel ? `
@@ -389,6 +436,15 @@ function renderHome() {
 }
 
 document.addEventListener('click', e => {
+    const ms = e.target.closest('[data-mysel]');
+    if (ms) { store.sel = ms.dataset.mysel; saveStore(); renderHome(); return; }
+    if (e.target.closest('#my-subj-toggle')) {
+        const mine = loadMySubj(), i = mine.indexOf(store.sel);
+        if (i === -1) mine.push(store.sel); else mine.splice(i, 1);
+        saveMySubj(mine); renderHome();
+        toast(i === -1 ? examName(store.sel) + '을(를) 내 과목으로 저장했어요' : '내 과목에서 뺐어요');
+        return;
+    }
     const sb = e.target.closest('[data-subject]');
     if (sb) { store.sel = examKey(sb.dataset.subject, parseKey(store.sel).g); saveStore(); renderHome(); return; }
     const gb = e.target.closest('[data-grade]');

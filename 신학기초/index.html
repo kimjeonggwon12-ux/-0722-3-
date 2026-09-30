@@ -2617,7 +2617,8 @@
             // 쓰든 정답으로 인정하기 위한 절 단위 분리. 각 절 내부의 단어 순서는 그대로 지켜야
             // 한다(콤마로 나뉜 "항목" 단위의 순서만 자유롭게 허용).
             splitClauses(text) {
-                return (text || '').split(',').map(s => s.trim()).filter(Boolean);
+                // 2026-09-30: 가운뎃점(·)도 항목 구분으로 본다(예: "교리·교법").
+                return (text || '').split(/[,·ㆍ]/).map(s => s.trim()).filter(Boolean);
             },
             // "계 1, 2, 3장"처럼 성구 주소 안에서 장/절을 나열하는 콤마와, "재림 예수님, 계 1,
             // 2, 3장"처럼 서로 다른 항목(내용/성구)을 구분하는 콤마는 똑같이 ','로 적혀 있어
@@ -2651,7 +2652,15 @@
             // 많은 문항(순열 폭발 방지, 6개 초과)은 시도하지 않고 null을 반환해 기존 순서 그대로
             // 비교하는 lenientCompare로 처리되게 한다.
             findAnyOrderMatch(userText, correctText) {
-                const cClauses = this.mergeAddressContinuations(this.splitClauses(correctText));
+                let cClauses = this.mergeAddressContinuations(this.splitClauses(correctText));
+                let sep = ', ';
+                // 2026-09-30: 항목 구분(콤마 등)이 없는 짧은 답(단어 2~6개)은 단어 순서를 바꿔 써도 정답
+                // (예: 정답 "교리 교법" ← "교법 교리"). 단어 끝 이음말(와/과/및)은 떼고 비교한다.
+                if (cClauses.length < 2) {
+                    const words = (correctText || '').trim().split(/\s+/).map(w => w.replace(/(와|과|및)$/, '')).filter(w => this.normalizeString(w));
+                    if (words.length < 2 || words.length > 6) return null;
+                    cClauses = words; sep = ' ';
+                }
                 if (cClauses.length < 2 || cClauses.length > 6) return null;
                 const uFull = this.normalizeString(userText);
                 if (!uFull) return null;
@@ -2660,7 +2669,7 @@
                     // lenientCompare와 동일한 이유로, 정규화 후 빈 문자열이 되는 순수 기호
                     // 토큰("/" 등)은 걸러낸다(안 그러면 정답을 그대로 다 써도 오답 처리됨).
                     const cTokens = order.flatMap(clause => clause.trim().split(/\s+/).filter(Boolean).map(t => this.normalizeString(t)).filter(Boolean));
-                    if (this.lenientAlign(cTokens, uFull)) return { order };
+                    if (this.lenientAlign(cTokens, uFull)) return { order, sep };
                 }
                 return null;
             },
@@ -2678,7 +2687,7 @@
             alignedCorrectText(userText, correctText) {
                 const m = this.findAnyOrderMatch(userText, correctText);
                 if (!m) return correctText;
-                return m.order.join(', ');
+                return m.order.join(m.sep || ', ');
             },
             diffChars(user, correct) {
                 const u = this.normalizeString(user); const c = this.normalizeString(correct);

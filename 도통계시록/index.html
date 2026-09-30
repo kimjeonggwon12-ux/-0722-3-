@@ -12417,6 +12417,42 @@
             return normStr.replace(/(\d)명$/, '$1');
         }
 
+        // 2026-09-30: 답이 여러 단어/항목이면 순서를 바꿔 써도 정답 (예: 정답 "교리와 교법" ← "교법 교리"도 인정).
+        // 항목 구분: 콤마(숫자 사이 콤마 "144,000"은 제외)·가운뎃점·슬래시, 없으면 띄어쓰기 단어 단위.
+        // 항목 사이 이음말(와/과/및)과 끝 조사는 있어도 없어도 된다. 항목 2~6개일 때만 시도.
+        function g4AnswerUnits(ansRaw) {
+            let units = String(ansRaw || '').split(/,(?!\d)|[·ㆍ\/]/).map(x => x.trim()).filter(Boolean);
+            if (units.length < 2) units = String(ansRaw || '').trim().split(/\s+/);
+            return units.map(u => normalizeG4Answer(u).replace(/(와|과|및)$/, '')).filter(Boolean);
+        }
+        function g4Permutations(arr) {
+            if (arr.length <= 1) return [arr];
+            const out = [];
+            arr.forEach((x, i) => g4Permutations(arr.slice(0, i).concat(arr.slice(i + 1))).forEach(p => out.push([x, ...p])));
+            return out;
+        }
+        function g4OrderFreeMatches(userRaw, ansRaw) {
+            const units = g4AnswerUnits(ansRaw);
+            if (units.length < 2 || units.length > 6) return false;
+            const canon = x => g4CanonicalizeSpelling(g4CanonicalizeSynonyms(g4StripNumberUnit(x)));
+            const u = canon(normalizeG4Answer(userRaw));
+            if (!u) return false;
+            const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return g4Permutations(units.map(canon)).some(order =>
+                new RegExp('^' + order.map(reEsc).join('(?:와|과|및)?') + '(?:와|과|은|는|이|가|을|를|도|의|들)?$').test(u));
+        }
+        // 한 문항에 빈칸이 여러 개면, 빈칸끼리 자리를 바꿔 써도 정답 (각 입력이 아직 안 쓰인 다른 정답과 맞으면 인정).
+        function g4GradeBlanks(inputs) {
+            const ok = inputs.map(inp => g4AnswerMatches(inp.value, inp.dataset.ans));
+            const pool = inputs.map((inp, i) => ok[i] ? null : inp.dataset.ans);
+            inputs.forEach((inp, i) => {
+                if (ok[i] || !inp.value.trim()) return;
+                const k = pool.findIndex((a, j) => a != null && j !== i && g4AnswerMatches(inp.value, a));
+                if (k !== -1) { ok[i] = true; pool[k] = null; }
+            });
+            return ok;
+        }
+
         function g4AnswerMatches(userRaw, ansRaw) {
             const userNorm = normalizeG4Answer(userRaw);
             const ansNorm = normalizeG4Answer(ansRaw);
@@ -12428,16 +12464,18 @@
             if (g4StripNumberUnit(userNoParticle) === g4StripNumberUnit(ansNorm)) return true;
             if (g4CanonicalizeSpelling(userNorm) === g4CanonicalizeSpelling(ansNorm)) return true;
             if (g4CanonicalizeSpelling(userNoParticle) === g4CanonicalizeSpelling(ansNorm)) return true;
+            if (g4OrderFreeMatches(userRaw, ansRaw)) return true;
             return false;
         }
 
         function checkG4Answer(ns, idx) {
             const card = document.getElementById(`g4-card-${ns}-${idx}`);
             if (!card) return false;
-            const inputs = card.querySelectorAll('.g4-blank');
+            const inputs = [...card.querySelectorAll('.g4-blank')];
+            const blankOk = g4GradeBlanks(inputs);
             let allCorrect = true;
-            inputs.forEach(inp => {
-                const ok = g4AnswerMatches(inp.value, inp.dataset.ans);
+            inputs.forEach((inp, bi) => {
+                const ok = blankOk[bi];
                 const mark = inp.closest('.g4-mark');
                 if (mark) { mark.classList.remove('correct', 'incorrect'); mark.classList.add(ok ? 'correct' : 'incorrect'); }
                 if (!ok) allCorrect = false;
@@ -12472,10 +12510,11 @@
                 const full = it.template.replace(/\{\{(.*?)\}\}/g, '$1');
                 const card = ns ? document.getElementById(`g4-card-${ns}-${i}`) : null;
                 const blanks = card ? [...card.querySelectorAll('.g4-blank')] : [];
-                const compareHtml = blanks.map(inp => {
+                const blankOk = g4GradeBlanks(blanks);
+                const compareHtml = blanks.map((inp, bi) => {
                     const userAns = inp.value.trim();
                     const correctAns = inp.dataset.ans || '';
-                    if (g4AnswerMatches(userAns, correctAns)) return ''; // 맞힌 빈칸은 비교를 보여줄 필요 없음
+                    if (blankOk[bi]) return ''; // 맞힌 빈칸은 비교를 보여줄 필요 없음
                     return `
                         <div class="mt-1.5 grid grid-cols-2 gap-2">
                             <div class="bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1.5">
