@@ -32,6 +32,10 @@
         .diff-ng { color: #dc2626; font-weight: 800; text-decoration: underline; }
         .card { background: #fff; border-radius: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #ece7dc; }
         .card.wrong { border-color: #fecdd3; }
+        .card.accepted { border-color: #fbbf24; box-shadow: 0 0 0 2px #fde68a; }
+        .accept-box { display: flex; align-items: center; gap: .6rem; margin-top: .75rem; padding: .7rem .85rem; border-radius: .9rem; border: 2px dashed #f59e0b; background: #fffbeb; cursor: pointer; }
+        .accept-box input { width: 1.35rem; height: 1.35rem; accent-color: #059669; flex-shrink: 0; }
+        .accept-box.on { border-style: solid; border-color: #059669; background: #ecfdf5; }
         .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; }
         /* 홈 탭 */
         /* 과목 탭: 세 과목이 한눈에 보이도록 큼직하게 */
@@ -156,12 +160,18 @@
             <p id="res-title" class="text-[13px] font-black text-slate-500 mt-0.5"></p>
             <div class="mt-3 flex items-end justify-center gap-1 pop"><span id="res-score" class="font-jua text-6xl text-c1">0</span><span class="font-jua text-2xl text-slate-400 mb-2">점</span></div>
             <p id="res-sub" class="text-[13px] font-bold text-slate-600 mt-1"></p>
+            <div id="res-regrade" class="hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-800 text-[13px] font-black"></div>
             <p id="res-msg" class="font-jua text-[16px] text-amber-700 mt-2"></p>
             <div class="grid grid-cols-3 gap-2 mt-4">
                 <button id="res-retry" class="py-3 rounded-xl bg-grad font-black text-[13px] text-white">새 10문제</button>
                 <button id="res-share" class="py-3 rounded-xl bg-amber-100 font-black text-[13px] text-amber-800">결과 공유</button>
                 <button id="res-home" class="py-3 rounded-xl bg-slate-100 font-black text-[13px] text-slate-700">홈으로</button>
             </div>
+        </div>
+        <div id="res-accept-guide" class="hidden mt-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+            <p class="text-[15px] font-black text-amber-900">✍️ 채점은 토씨 하나까지 그대로 합니다</p>
+            <p class="text-[13px] font-bold text-amber-900/80 mt-1.5 leading-relaxed break-keep">실제 시험처럼 정확하게 외우는 습관을 들이기 위해서예요. 다만 자동 채점이 표기·띄어쓰기 같은 사소한 차이까지 오답으로 잡을 때가 있습니다.</p>
+            <p class="text-[13px] font-bold text-amber-900/80 mt-1.5 leading-relaxed break-keep">내 답을 정답과 비교해 보고 <b class="text-amber-900">“이건 정답이다”</b> 싶으면 <b class="text-emerald-700">☑ 정답 인정</b>에 체크하세요. 바로 <b class="text-amber-900">재채점</b>되고, 기록에도 재채점 점수가 남습니다.</p>
         </div>
         <label class="flex items-center gap-2 mt-4 mb-2 text-[13px] font-bold text-slate-600"><input type="checkbox" id="res-wrong-only" class="w-4 h-4"> 틀린 문제만 보기</label>
         <div id="res-list" class="space-y-3"></div>
@@ -582,11 +592,26 @@ function resultBlankHtml(src, r, ans) {
             : `<span class="blank ng">${esc(ans[idx] || '(빈칸)')}</span> <span class="font-black text-emerald-700">→ ${esc(part)}</span>`;
     }).join('');
 }
+// 계시록 통달(td)·신학(th)은 토씨대로 채점하되, 뜻이 같은 답은 본인이 "정답 인정"으로 재채점할 수 있다.
+// (계시록 암기 mb/mv는 글자 그대로가 시험 기준이라 제외)
+const canAccept = q => q.type === 'td' || q.type === 'th';
+function acceptBoxHtml(rec, i) {
+    const on = !!rec.overrides[i];
+    return `<label class="accept-box ${on ? 'on' : ''}"><input type="checkbox" data-override="${i}" ${on ? 'checked' : ''}>
+        <span class="text-[14px] font-black ${on ? 'text-emerald-700' : 'text-amber-800'} break-keep">${on ? '정답 인정함 · 재채점 반영됨' : '내가 볼 때 이건 정답이다 → 정답 인정'}</span></label>`;
+}
 function renderResultBody() {
     const rec = shown, exam = rec.exam;
     const isOk = i => !!rec.overrides[i] || rec.results[i].every(Boolean);
+    const isAccepted = i => !!rec.overrides[i] && !rec.results[i].every(Boolean);
     rec.score = calcScore(rec);
     rec.full = rec.results.filter((_, i) => isOk(i)).length;
+    const acceptedN = rec.results.filter((_, i) => isAccepted(i)).length;
+    rec.rawScore = calcScore(Object.assign({}, rec, { overrides: {} }));
+    rec.accepted = acceptedN;
+    $('res-regrade').classList.toggle('hidden', !acceptedN);
+    $('res-regrade').textContent = acceptedN ? `🔄 재채점 · 원점수 ${rec.rawScore}점 → ${rec.score}점 (정답 인정 ${acceptedN}문항)` : '';
+    $('res-accept-guide').classList.toggle('hidden', !exam.questions.some((q, i) => canAccept(q) && !rec.results[i].every(Boolean)));
     const sec = Math.round((rec.elapsed || 0) / 1000);
     $('res-score').textContent = rec.score;
     $('res-sub').textContent = `${exam.questions.length}문항 중 ${rec.full}문항 정답 · 걸린 시간 ${Math.floor(sec / 60)}분 ${sec % 60}초`;
@@ -614,27 +639,28 @@ function renderResultBody() {
                     <p class="text-[14px] font-bold text-emerald-800 mt-1 break-keep">정답: ${nl2br(p)}</p>
                 </div>`).join('') +
                 (q.x ? `<details class="mt-2"><summary class="text-[12px] font-bold text-c1 cursor-pointer">해설 보기</summary><p class="text-[13px] text-slate-600 mt-1 leading-relaxed break-keep">${nl2br(q.x)}</p></details>` : '');
-            // 서술형은 자동 채점이 완벽할 수 없으므로, 뜻이 맞으면 본인이 정답으로 인정할 수 있게 한다
-            if (!r.every(Boolean)) body += `<button class="mt-2 text-[12px] font-black px-3 py-1.5 rounded-lg ${rec.overrides[i] ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-300 text-slate-600'}" data-override="${i}">${rec.overrides[i] ? '정답으로 인정함 (취소)' : '내 답도 뜻이 맞아요 → 정답 인정'}</button>`;
         }
+        if (canAccept(q) && !r.every(Boolean)) body += acceptBoxHtml(rec, i);
         const pts = Math.round(qPoints(rec, i) * 10) / 10;
-        return `<div class="card p-4 ${ok ? '' : 'wrong'}">
-            <div class="flex items-center justify-between mb-2">${qHeader(q, i)}<span class="pill ${ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}" style="font-size:12px">${ok ? '정답' : '오답'} · ${pts}점</span></div>
+        const acc = isAccepted(i);
+        return `<div class="card p-4 ${acc ? 'accepted' : ok ? '' : 'wrong'}">
+            <div class="flex items-center justify-between mb-2">${qHeader(q, i)}<span class="pill ${acc ? 'bg-amber-100 text-amber-800' : ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}" style="font-size:12px">${acc ? '정답 인정' : ok ? '정답' : '오답'} · ${pts}점</span></div>
             ${body}</div>`;
     }).join('');
     $('res-list').innerHTML = html || '<p class="card p-5 text-center text-slate-500 font-bold">틀린 문제가 없어요!</p>';
 }
 $('res-wrong-only').onchange = renderResultBody;
-$('res-list').addEventListener('click', e => {
+$('res-list').addEventListener('change', e => {
     const b = e.target.closest('[data-override]'); if (!b) return;
     const i = +b.dataset.override;
-    shown.overrides[i] = !shown.overrides[i];
-    renderResultBody(); saveStore();
+    shown.overrides[i] = b.checked;
+    renderResultBody(); saveStore(); // 기록(history)에는 재채점 점수가 저장된다
+    toast(b.checked ? `정답 인정 → ${shown.score}점으로 재채점했어요` : `정답 인정 취소 → ${shown.score}점`);
 });
 $('res-retry').onclick = () => { store.sel = shown.key; startExam(shown.key); };
 $('res-home').onclick = () => show('home');
 $('res-share').onclick = async () => {
-    const text = `오늘의 양식 · 계시록 통달 연습\n${examName(shown.key)} ${shown.score}점 (${shown.full}/${shown.exam.questions.length}문항 정답)`;
+    const text = `오늘의 양식 · 계시록 통달 연습\n${examName(shown.key)} ${shown.score}점 (${shown.full}/${shown.exam.questions.length}문항 정답${shown.accepted ? `, 정답 인정 ${shown.accepted}문항 포함 재채점` : ''})`;
     try {
         if (navigator.share) await navigator.share({ text });
         else { await navigator.clipboard.writeText(text); toast('결과가 복사됐어요. 단톡방에 붙여넣기 하세요'); }

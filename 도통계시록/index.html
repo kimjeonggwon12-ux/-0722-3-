@@ -924,6 +924,7 @@
                     <span id="grade4-mock-final-score" class="text-5xl font-black tracking-tighter text-[#4f46e5]">0</span>
                     <span class="text-lg font-bold text-slate-500 mb-1 ml-2">/ <span id="grade4-mock-final-total">100</span>점</span>
                 </div>
+                <div id="g4-mock-regrade-badge" class="hidden -mt-3 mb-5 px-4 py-2 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-800 text-[13px] font-black"></div>
                 <div id="g4-mock-result-desc" class="text-lg font-bold mb-8 px-4 leading-relaxed text-slate-600">수고하셨습니다!</div>
                 <div class="w-full max-w-md space-y-3 no-print">
                     <button onclick="startGradeMock(g4MockState.gradeKey)" class="w-full bg-[#4f46e5] text-white rounded-2xl p-4 font-black shadow-lg shadow-[#4f46e5]/20 active:scale-95 transition-transform">다시 도전</button>
@@ -12502,7 +12503,8 @@
         // ns('study'/'exam'/'mock')를 알아야 문항 카드(g4-card-${ns}-${i})에서 실제로 입력했던 답을
         // 읽어올 수 있다. 채점 자체는 이미 끝난 g4AnswerMatches()를 그대로 재사용해 빈칸별로
         // "내가 쓴 답"과 "정답"을 나란히 보여주기만 하고, 채점 방식 자체는 바꾸지 않는다.
-        function buildG4WrongListHtml(items, wrongIdxs, ns) {
+        // accepted(Set)를 넘기면 문항마다 "정답 인정" 체크박스를 붙인다(모의고사 재채점용).
+        function buildG4WrongListHtml(items, wrongIdxs, ns, accepted) {
             if (wrongIdxs.length === 0) {
                 return '<p class="text-[12px] text-emerald-600 font-bold text-center py-4">🎉 틀린 문항이 없습니다!</p>';
             }
@@ -12528,11 +12530,18 @@
                             </div>
                         </div>`;
                 }).join('');
+                const on = accepted ? accepted.has(i) : false;
+                const acceptHtml = accepted ? `
+                    <label class="mt-2 flex items-center gap-2.5 rounded-xl px-3 py-2.5 cursor-pointer border-2 ${on ? 'border-emerald-500 bg-emerald-50' : 'border-dashed border-amber-400 bg-amber-50'}">
+                        <input type="checkbox" class="w-5 h-5 flex-shrink-0 accent-emerald-600" ${on ? 'checked' : ''} onchange="toggleG4MockAccept(${i}, this.checked)">
+                        <span class="text-[13px] font-black break-keep ${on ? 'text-emerald-700' : 'text-amber-800'}">${on ? '정답 인정함 · 재채점 반영됨' : '내가 볼 때 이건 정답이다 → 정답 인정'}</span>
+                    </label>` : '';
                 return `
-                <div class="border-b border-slate-100 py-2.5 last:border-0">
-                    <p class="text-[12px] font-black text-[#1e1b4b]">${i + 1}. ${escapeHtml(it.q)} <span class="text-slate-400 font-bold">(계 ${it.ch}장${it.v ? `:${it.v}` : ''})</span></p>
+                <div class="py-2.5 last:border-0 ${on ? 'border-2 border-amber-300 bg-amber-50/40 rounded-xl px-2 my-1' : 'border-b border-slate-100'}">
+                    <p class="text-[12px] font-black text-[#1e1b4b]">${i + 1}. ${escapeHtml(it.q)} <span class="text-slate-400 font-bold">(계 ${it.ch}장${it.v ? `:${it.v}` : ''})</span>${on ? ' <span class="ml-1 px-1.5 py-0.5 rounded-md bg-amber-200 text-amber-800 text-[10px] font-black">정답 인정</span>' : ''}</p>
                     <p class="text-[12px] text-rose-600 break-keep mt-0.5">${escapeHtml(full)}</p>
                     ${compareHtml}
+                    ${acceptHtml}
                 </div>`;
             }).join('');
         }
@@ -12950,17 +12959,11 @@
         function finalizeGradeMockResult(saveHistory) {
             g4MockState.items.forEach((_, idx) => checkG4MockAnswer(idx));
             g4MockState.submitted = true;
-            const correct = [...g4MockState.results.values()].filter(Boolean).length;
+            if (!(g4MockState.accepted instanceof Set)) g4MockState.accepted = new Set();
+            const { correct, score, total, rawScore } = renderG4MockScoreAndWrongList();
             const pointPer = g4MockState.pointPer || 4;
-            const score = correct * pointPer;
-            const total = g4MockState.items.length * pointPer;
-            const wrongIdxs = [...g4MockState.results.entries()].filter(([, ok]) => !ok).map(([i]) => i);
-            const wrongBox = document.getElementById('grade4-mock-wronglist');
-            wrongBox.innerHTML = `<h3 class="text-[13px] font-black text-rose-600 mb-2">틀린 문항 다시보기 (${wrongIdxs.length}개)</h3>${buildG4WrongListHtml(g4MockState.items, wrongIdxs, 'mock')}`;
-            wrongBox.classList.remove('hidden');
+            document.getElementById('grade4-mock-wronglist').classList.remove('hidden');
             document.getElementById('g4-mock-print-btn').classList.remove('hidden');
-            document.getElementById('grade4-mock-final-score').textContent = score;
-            document.getElementById('grade4-mock-final-total').textContent = total;
             const cfg = GRADE_MOCK_CONFIG[g4MockState.gradeKey];
             const resultTitle = document.getElementById('g4-mock-result-title');
             if (resultTitle) resultTitle.textContent = `계시록 통달 ${cfg ? cfg.label : '4급'} 모의고사 결과`;
@@ -12971,14 +12974,64 @@
             if (resultBackBtn) resultBackBtn.setAttribute('onclick', "showScreen('gradeSelect')");
             if (saveHistory) {
                 const values = Array.from(document.querySelectorAll('#grade4-mock-container .g4-blank')).map(inp => inp.value);
+                g4MockState.savedAt = Date.now();
                 saveTongdalMockHistoryEntry({
                     gradeKey: g4MockState.gradeKey, gradeLabel: cfg ? cfg.label : '4급', name: g4MockState.studentName,
-                    score, total, correct, takenAt: tongdalNowStr(), elapsedMs: g4MockState.elapsedMs || 0,
-                    pointPer, items: g4MockState.items, values, savedAt: Date.now()
+                    score, total, correct, rawScore, accepted: [], takenAt: tongdalNowStr(), elapsedMs: g4MockState.elapsedMs || 0,
+                    pointPer, items: g4MockState.items, values, savedAt: g4MockState.savedAt
                 });
                 renderTongdalMockHistoryList();
             }
             showScreen('grade4MockResult');
+        }
+
+        // ── 정답 인정(재채점) ──
+        // 채점은 토씨대로 하되, 내가 봐서 정답인 문항은 "정답 인정" 체크로 맞힌 것으로 다시 계산한다.
+        // 응시 기록에도 재채점 점수와 인정 문항이 남는다(원점수는 rawScore로 따로 보관).
+        function renderG4MockScoreAndWrongList() {
+            const pointPer = g4MockState.pointPer || 4;
+            const wrongIdxs = [...g4MockState.results.entries()].filter(([, ok]) => !ok).map(([i]) => i);
+            const accepted = g4MockState.accepted;
+            [...accepted].forEach(i => { if (!wrongIdxs.includes(i)) accepted.delete(i); });
+            const rawCorrect = [...g4MockState.results.values()].filter(Boolean).length;
+            const correct = rawCorrect + accepted.size;
+            const rawScore = rawCorrect * pointPer, score = correct * pointPer;
+            const total = g4MockState.items.length * pointPer;
+            document.getElementById('grade4-mock-final-score').textContent = score;
+            document.getElementById('grade4-mock-final-total').textContent = total;
+            const badge = document.getElementById('g4-mock-regrade-badge');
+            if (badge) {
+                badge.classList.toggle('hidden', !accepted.size);
+                badge.textContent = accepted.size ? `🔄 재채점 · 원점수 ${rawScore}점 → ${score}점 (정답 인정 ${accepted.size}문항)` : '';
+            }
+            const guide = wrongIdxs.length ? `
+                <div class="rounded-xl border-2 border-amber-300 bg-amber-50 p-3.5 mb-3">
+                    <p class="text-[14px] font-black text-amber-900">✍️ 채점은 토씨 하나까지 그대로 합니다</p>
+                    <p class="text-[12px] font-bold text-amber-900/80 mt-1 leading-relaxed break-keep">실제 시험처럼 정확하게 외우는 습관을 들이기 위해서예요. 다만 자동 채점이 표기·띄어쓰기 같은 사소한 차이까지 오답으로 잡을 때가 있습니다.</p>
+                    <p class="text-[12px] font-bold text-amber-900/80 mt-1 leading-relaxed break-keep">내 답을 정답과 비교해 보고 <b class="text-amber-900">“이건 정답이다”</b> 싶으면 <b class="text-emerald-700">☑ 정답 인정</b>에 체크하세요. 바로 <b class="text-amber-900">재채점</b>되고, 응시 기록에도 재채점 점수가 남습니다.</p>
+                </div>` : '';
+            const scrollEl = document.getElementById('screen-grade4-mock-result');
+            const keepTop = scrollEl ? scrollEl.scrollTop : 0;
+            document.getElementById('grade4-mock-wronglist').innerHTML = `<h3 class="text-[13px] font-black text-rose-600 mb-2">틀린 문항 다시보기 (${wrongIdxs.length}개${accepted.size ? ` · 정답 인정 ${accepted.size}개` : ''})</h3>${guide}${buildG4WrongListHtml(g4MockState.items, wrongIdxs, 'mock', accepted)}`;
+            if (scrollEl) scrollEl.scrollTop = keepTop;
+            return { correct, score, total, rawScore };
+        }
+
+        function toggleG4MockAccept(idx, on) {
+            if (!(g4MockState.accepted instanceof Set)) g4MockState.accepted = new Set();
+            if (on) g4MockState.accepted.add(idx); else g4MockState.accepted.delete(idx);
+            const { correct, score, rawScore } = renderG4MockScoreAndWrongList();
+            // 이 응시의 기록을 재채점 결과로 갱신
+            if (g4MockState.savedAt) {
+                const list = loadTongdalMockHistory();
+                const entry = list.find(h => h.savedAt === g4MockState.savedAt);
+                if (entry) {
+                    if (entry.rawScore == null) entry.rawScore = rawScore;
+                    Object.assign(entry, { score, correct, accepted: [...g4MockState.accepted] });
+                    try { localStorage.setItem(TONGDAL_MOCK_HISTORY_KEY, JSON.stringify(list)); } catch (e) { /* 무시 */ }
+                    renderTongdalMockHistoryList();
+                }
+            }
         }
 
         function submitGradeMock() {
@@ -13042,6 +13095,7 @@
                     <button onclick="loadTongdalMockHistoryEntry(${idx})" class="flex items-center gap-2 flex-grow min-w-0 text-left py-1.5 hover:opacity-70 transition-opacity">
                         <span class="text-slate-500 flex-shrink-0">${escapeHtml(h.takenAt || '')}</span>
                         <span class="text-slate-400 flex-grow truncate">${escapeHtml(h.gradeLabel || '')} · ${escapeHtml(h.name || '')}</span>
+                        ${h.accepted && h.accepted.length ? `<span class="flex-shrink-0 px-1.5 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-700 text-[10px] font-black" title="원점수 ${h.rawScore}점">🔄재채점 +${h.accepted.length}</span>` : ''}
                         <span class="${(h.score || 0) >= (h.total || 100) * 0.9 ? 'text-emerald-600' : 'text-rose-500'} flex-shrink-0">${h.score}/${h.total}점</span>
                         <span class="text-fuchsia-400 flex-shrink-0">📂 불러오기</span>
                     </button>
@@ -13059,7 +13113,8 @@
                 return;
             }
             const items = entry.items;
-            g4MockState = { items, results: new Map(), submitted: false, gradeKey: entry.gradeKey, pointPer: entry.pointPer || 2, studentName: entry.name || '', elapsedMs: entry.elapsedMs || 0 };
+            g4MockState = { items, results: new Map(), submitted: false, gradeKey: entry.gradeKey, pointPer: entry.pointPer || 2, studentName: entry.name || '', elapsedMs: entry.elapsedMs || 0,
+                accepted: new Set(entry.accepted || []), savedAt: entry.savedAt };
             renderMockCards(items);
             const inputs = document.querySelectorAll('#grade4-mock-container .g4-blank');
             inputs.forEach((inp, i) => { if (entry.values && entry.values[i] !== undefined) inp.value = entry.values[i]; });
