@@ -104,6 +104,15 @@
         .arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--ink); background: rgba(255,255,255,.92); font-size: 24px; font-weight: 900; color: var(--ink); display: flex; align-items: center; justify-content: center; box-shadow: 2px 3px 0 var(--ink); }
         .arrow.l { left: 8px; } .arrow.r { right: 8px; }
         .arrow:disabled { opacity: .2; }
+        .ep-react { max-width: 720px; margin: 0 auto; text-align: center; padding: 18px 16px 6px; }
+        .ep-like { border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 11px 26px; font-size: 16px; font-weight: 900; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+        .ep-like .h { color: var(--red); font-size: 18px; }
+        .ep-like.on { background: #fff1f2; border-color: var(--red); color: var(--red); box-shadow: 3px 3px 0 var(--red); }
+        .ep-like.pop { animation: likepop .4s ease; }
+        @keyframes likepop { 40% { transform: scale(1.12); } }
+        .ep-views { margin: 10px 0 0; font-size: 13px; color: #8f889b; }
+        .ep-views b { color: var(--ink); }
+        .ep-row .meta .rd { color: var(--violet); font-weight: 700; }
         .v-nav { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 12px 16px; border-bottom: 8px solid #f3f0ea; }
         .v-nav button { border: 1px solid #ddd; background: #fff; border-radius: 10px; padding: 11px 8px; font-weight: 800; font-size: 14px; color: var(--ink); }
         .v-nav button:disabled { color: #ccc; }
@@ -290,6 +299,10 @@
         </div>
         <p class="swipe-hint">옆으로 밀어도 넘어가요</p>
         <p class="v-credit">글·그림 김수진 (지파교육부 교재과장)</p>
+        <div class="ep-react">
+            <button type="button" id="ep-like" class="ep-like" onclick="toggleEpLike()"><span class="h">♡</span> 좋아요 <b id="ep-like-n">0</b></button>
+            <p class="ep-views"><b id="ep-views-n">0</b>명이 읽었어요 · 댓글 <b id="ep-cmt-n">0</b></p>
+        </div>
         <div class="v-nav">
             <button type="button" id="nav-prev" onclick="stepEp(-1)">‹ 이전화</button>
             <button type="button" class="mid" onclick="closeViewer()">목록</button>
@@ -361,6 +374,7 @@
         let toons = BUNDLED.slice();     // ep 오름차순
         let words = [];                  // 말씀 교재 (최신순)
         let commentCounts = {};
+        let epStats = {};                // 'ep12' -> { views, likes }
         let sortNewest = true;
         let currentEp = null;
         let comments = [];
@@ -437,7 +451,7 @@
                     <div class="info">
                         <div class="no">${t.ep}화 ${t.at && isRecent(t.at) ? '<span class="badge-up">UP</span>' : ''}</div>
                         <div class="ti">${esc(t.title)}</div>
-                        <div class="meta">${t.at ? '<span>' + fmtDate(t.at).slice(0, 10) + '</span>' : ''}<span>💬 ${cnt}</span>${read.has(t.ep) ? '<span>읽음</span>' : ''}
+                        <div class="meta">${t.at ? '<span>' + fmtDate(t.at).slice(0, 10) + '</span>' : ''}<span>👀 ${(epStats['ep' + t.ep] || {}).views || 0}</span><span>♥ ${(epStats['ep' + t.ep] || {}).likes || 0}</span><span>💬 ${cnt}</span>${read.has(t.ep) ? '<span class="rd">읽음</span>' : ''}
                         ${isAdm && t.id ? `<button type="button" class="del-mini" onclick="event.stopPropagation();deleteItem('${t.id}','${t.ep}화')">삭제</button>` : ''}</div>
                     </div></div>`;
             }).join('');
@@ -489,6 +503,8 @@
             // 다음 화 미리 받기
             const nx = toons[idx + 1]; if (nx && nx.src) { const im = new Image(); im.src = nx.src; }
             const read = readSet(); read.add(ep); save('totoon_read', [...read]); save('totoon_last', ep);
+            renderEpReact();
+            countView(ep);
             loadComments();
         }
         function stepEp(d) {
@@ -526,6 +542,41 @@
             if (currentEp !== null) closeViewer(true);
             if (!document.getElementById('word-viewer').classList.contains('hidden')) closeWord();
         });
+
+        /* ---------- 회차 읽은 사람·좋아요 ---------- */
+        function renderEpReact() {
+            if (currentEp === null) return;
+            const k = 'ep' + currentEp, st = epStats[k] || {};
+            const liked = !!store('totoon_ep_likes', {})[k];
+            const btn = document.getElementById('ep-like');
+            btn.classList.toggle('on', liked);
+            btn.querySelector('.h').textContent = liked ? '♥' : '♡';
+            document.getElementById('ep-like-n').textContent = st.likes || 0;
+            document.getElementById('ep-views-n').textContent = st.views || 0;
+            document.getElementById('ep-cmt-n').textContent = commentCounts[k] || 0;
+        }
+        // 한 기기에서 한 회차는 한 번만 '읽은 사람'으로 센다
+        async function countView(ep) {
+            const k = 'ep' + ep, seen = store('totoon_viewed', {});
+            if (seen[k]) return;
+            const r = await gasCall({ action: 'toonView', key: k });
+            if (!r || !r.success) return;
+            seen[k] = 1; save('totoon_viewed', seen);
+            epStats[k] = { views: r.views, likes: r.likes };
+            if (currentEp === ep) renderEpReact();
+        }
+        async function toggleEpLike() {
+            const ep = currentEp, k = 'ep' + ep;
+            const likes = store('totoon_ep_likes', {});
+            const on = !likes[k];
+            const st = epStats[k] = epStats[k] || { views: 0, likes: 0 };
+            st.likes = Math.max(0, (st.likes || 0) + (on ? 1 : -1));
+            if (on) likes[k] = 1; else delete likes[k];
+            save('totoon_ep_likes', likes); renderEpReact();
+            if (on) { const b = document.getElementById('ep-like'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+            const r = await gasCall({ action: 'toonEpLike', key: k, delta: on ? 1 : -1 });
+            if (r && r.success) { epStats[k] = { views: r.views, likes: r.likes }; if (currentEp === ep) renderEpReact(); }
+        }
 
         /* ---------- 댓글 (답글·좋아요) ---------- */
         function myComments() { return store('totoon_my_comments', {}); }
@@ -572,6 +623,7 @@
         }
         function renderComments() {
             document.getElementById('c-count').textContent = comments.length;
+            if (currentEp !== null) document.getElementById('ep-cmt-n').textContent = comments.length;
             const tops = comments.filter(c => !c.parentId);
             const ranked = tops.filter(c => c.likes > 0).sort((a, b) => b.likes - a.likes || new Date(b.at) - new Date(a.at));
             const bestIds = new Set(ranked.slice(0, 3).map(c => c.id));
@@ -784,6 +836,7 @@
             const r = await gasCall({ action: 'toonList' });
             if (!r || !r.success) return;
             commentCounts = r.counts || {};
+            epStats = r.stats || {};
             const up = (r.items || []).filter(i => i.kind === 'toon' && i.ep).map(i => ({ ep: i.ep, title: i.title, id: i.id, pages: i.pages, at: i.at }));
             toons = BUNDLED.filter(b => !up.some(u => u.ep === b.ep)).concat(up).sort((a, b) => a.ep - b.ep);
             words = (r.items || []).filter(i => i.kind === 'word').sort((a, b) => new Date(b.at) - new Date(a.at));
