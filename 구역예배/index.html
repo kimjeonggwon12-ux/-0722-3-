@@ -33,25 +33,13 @@
         .topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top));
                   background: rgba(247,243,236,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
         .topbar a { color: var(--sub); font-weight: 700; font-size: 14px; text-decoration: none; }
-        .topbar .t { font-family: 'Jua', sans-serif; font-size: 18px; color: var(--navy); }
-        .topbar .t em { font-style: normal; color: #c49a3a; }
+        .topbar .t { font-family: 'Jua', sans-serif; font-size: 18px; color: var(--violet-d); }
+        .topbar .t em { font-style: normal; color: var(--violet); }
         .topbar .adm { font-size: 12px; color: #b5aec0; background: none; border: 0; padding: 4px; }
         .topbar .adm.on { color: var(--violet); font-weight: 800; }
 
-        /* 구역예배 & 토툰 플랫폼 머리 */
-        .plat { position: relative; overflow: hidden; padding: 26px 20px 24px; color: var(--cream);
-                background: radial-gradient(circle at 92% -10%, rgba(233,199,123,.28) 0 120px, transparent 121px),
-                            radial-gradient(circle at -6% 110%, rgba(233,199,123,.16) 0 110px, transparent 111px), var(--navy); }
-        .plat .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--gold); opacity: .9; }
-        .plat h1 { margin: 8px 0 0; font-family: 'Gowun Batang', serif; font-size: clamp(30px, 8.6vw, 42px); line-height: 1.15; font-weight: 700; }
-        .plat h1 .amp { font-family: 'Gowun Batang', serif; color: var(--gold); margin: 0 4px; }
-        .plat h1 .toon { font-family: 'Jua', sans-serif; font-weight: 400; color: var(--gold); }
-        .plat .rule { width: 46px; height: 3px; background: var(--gold); border-radius: 2px; margin: 14px 0 12px; }
-        .plat p { margin: 0; font-size: 14px; line-height: 1.6; color: rgba(255,250,240,.82); }
-        .plat .cross { position: absolute; right: 22px; top: 24px; width: 54px; height: 54px; border: 1.5px solid rgba(233,199,123,.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--gold); }
-
         /* 토툰 배너: TOTOON 타이포 (토툰 탭 안에서만) */
-        .hero { position: relative; overflow: hidden; padding: 22px 12px 18px; text-align: center; margin: -16px -16px 16px;
+        .hero { position: relative; overflow: hidden; padding: 20px 12px 18px; text-align: center;
                 background:
                   radial-gradient(circle at 12% 20%, rgba(201,179,245,.55) 0 60px, transparent 61px),
                   radial-gradient(circle at 88% 78%, rgba(255,214,102,.45) 0 46px, transparent 47px),
@@ -67,6 +55,9 @@
         .hero .ko { margin-top: 12px; display: inline-block; font-family: 'Jua', sans-serif; font-size: 13px; color: #fff; background: var(--ink); padding: 3px 10px; border-radius: 999px; letter-spacing: .5px; }
         .hero .tag { margin: 10px 0 0; font-family: 'Jua', sans-serif; font-size: clamp(18px, 5vw, 24px); color: var(--ink); }
         .hero .tag b { color: var(--violet); }
+        .hero .kicker { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'Jua', sans-serif; font-size: clamp(22px, 6.4vw, 30px); color: var(--ink); }
+        .hero .kicker .cross { width: 1.25em; height: 1.25em; border-radius: 50%; background: #ffd23f; border: 2.5px solid var(--ink); box-shadow: 2px 3px 0 var(--ink); display: inline-flex; align-items: center; justify-content: center; font-size: .62em; transform: rotate(-6deg); }
+        .hero .kicker .amp { font-family: 'Bagel Fat One', 'Jua', sans-serif; color: var(--violet); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; font-size: 1.05em; }
         .hero .credit { margin: 8px 0 0; font-size: 12px; color: var(--sub); }
         .hero .credit b { color: var(--ink); }
         .v-credit { text-align: center; font-size: 12px; color: #9a93a6; padding: 2px 0 0; }
@@ -75,8 +66,7 @@
         /* 코너 탭 */
         .tabs { position: sticky; top: 49px; z-index: 25; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--paper); border-bottom: 1px solid var(--line); }
         .tabs button { border: 0; background: none; padding: 13px 4px 11px; font-size: 15px; font-weight: 800; color: #9a93a6; border-bottom: 3px solid transparent; }
-        .tabs button.on { color: var(--ink); border-bottom-color: var(--navy); }
-        .tabs button.on[data-tab="toon"] { border-bottom-color: var(--violet); }
+        .tabs button.on { color: var(--ink); border-bottom-color: var(--violet); }
         .panel { padding: 16px; }
 
         /* 토툰 목록 */
@@ -140,6 +130,15 @@
         .c-item .txt { margin: 6px 0 8px; font-size: 14px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
         .c-item .bot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #aaa; }
         .c-item .bot .sp { flex: 1; }
+        .like { border: 1px solid #e5e5e5; background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 12px; color: #777; font-weight: 800; }
+        .like.on { border-color: #fecdd3; background: #fff1f2; color: var(--red); }
+        .re-btn { border: 0; background: none; color: #777; font-size: 12px; font-weight: 800; padding: 2px 4px; }
+        .replies { margin-top: 10px; background: #faf8f4; border-radius: 12px; padding: 4px 12px 12px; }
+        .c-item.reply { padding: 10px 0; border-bottom: 1px dashed #ebe6dc; }
+        .c-item .re { color: #bbb; margin-right: 2px; }
+        .r-form { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
+        .r-form textarea { flex: 1; border: 1px solid #ddd; border-radius: 10px; padding: 8px 10px; font-size: 13px; height: 54px; resize: none; outline: none; background: #fff; }
+        .r-form .send { border: 0; background: var(--green); color: #fff; font-weight: 900; padding: 9px 14px; border-radius: 8px; font-size: 13px; }
         .vote { border: 1px solid #e5e5e5; background: #fff; border-radius: 6px; padding: 3px 9px; font-size: 12px; color: #777; font-weight: 700; }
         .vote.on.like { border-color: var(--red); color: var(--red); }
         .vote.on.dislike { border-color: #555; color: #333; }
@@ -167,12 +166,12 @@
         .f-lab { display: block; font-size: 13px; font-weight: 800; margin: 12px 0 6px; }
         .f-lab small { color: #aaa; font-weight: 500; }
         .f-in { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; font-size: 15px; background: #fff; outline: none; }
-        .f-in:focus { border-color: var(--navy); }
+        .f-in:focus { border-color: var(--violet); }
         textarea.f-in { min-height: 180px; resize: vertical; line-height: 1.6; }
         .f-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .f-check { display: flex; gap: 8px; align-items: flex-start; margin: 14px 0; font-size: 13px; color: var(--sub); line-height: 1.5; }
         .f-check input { width: 18px; height: 18px; accent-color: var(--violet); margin-top: 1px; flex-shrink: 0; }
-        .btn-big { width: 100%; border: 2px solid var(--ink); background: var(--navy); color: #fff; font-size: 16px; font-weight: 900; padding: 14px; border-radius: 14px; box-shadow: 4px 4px 0 var(--ink); }
+        .btn-big { width: 100%; border: 2px solid var(--ink); background: var(--violet); color: #fff; font-size: 16px; font-weight: 900; padding: 14px; border-radius: 14px; box-shadow: 4px 4px 0 var(--ink); }
         .btn-big:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--ink); }
         .btn-big:disabled { opacity: .5; }
         .note { font-size: 12px; color: #a39cae; text-align: center; margin-top: 10px; line-height: 1.5; }
@@ -207,14 +206,17 @@
         <button type="button" id="adm-btn" class="adm" onclick="openAdmin()">관리</button>
     </div>
 
-    <header class="plat">
-        <div class="wrap">
-            <div class="eyebrow">시온 공부방 · 구역 모임</div>
-            <h1>구역예배<span class="amp">&amp;</span><span class="toon">토툰</span></h1>
-            <div class="rule"></div>
-            <p>말씀으로 함께 모이고,<br>이야기로 함께 자라는 우리 구역</p>
+
+    <header class="hero">
+        <span class="spark" style="left:8%;top:62%">✦</span>
+        <span class="spark" style="right:9%;top:16%">✧</span>
+        <div class="kicker"><span class="cross" aria-hidden="true">✝</span>구역예배 <span class="amp">&amp;</span></div>
+        <div class="logo" aria-label="TOTOON">
+            <span>T</span><i class="face" aria-hidden="true"></i><span>T</span><span class="y">O</span><span>O</span><span>N</span>
         </div>
-        <span class="cross" aria-hidden="true">✝</span>
+        <div><span class="ko">THOMAS WEBTOON</span></div>
+        <p class="tag">좌충우돌 <b>보라</b>의 신앙 성장기</p>
+        <p class="credit">글·그림 <b>김수진</b> (지파교육부 교재과장)</p>
     </header>
 
     <nav class="tabs wrap" id="tabs">
@@ -235,16 +237,6 @@
 
         <!-- 토툰 -->
         <section id="panel-toon" class="panel hidden">
-            <div class="hero">
-                <span class="spark" style="left:8%;top:62%">✦</span>
-                <span class="spark" style="right:9%;top:16%">✧</span>
-                <div class="logo" aria-label="TOTOON">
-                    <span>T</span><i class="face" aria-hidden="true"></i><span>T</span><span class="y">O</span><span>O</span><span>N</span>
-                </div>
-                <div><span class="ko">THOMAS WEBTOON · 토마스 웹툰</span></div>
-                <p class="tag">좌충우돌 <b>보라</b>의 신앙 성장기</p>
-                <p class="credit">글·그림 <b>토마스</b> · 김수진 (지파교육부 교재과장)</p>
-            </div>
             <div class="starter">
                 <button type="button" class="main" id="btn-continue" onclick="openEp(readSet().size ? firstUnreadOrLast() : toons[toons.length - 1].ep)">이어보기</button>
                 <button type="button" onclick="openEp(toons[0] && toons[0].ep)">첫화보기</button>
@@ -296,7 +288,7 @@
             <button type="button" class="arrow r" id="arr-r" onclick="stepEp(1)" aria-label="다음 화">›</button>
         </div>
         <p class="swipe-hint">옆으로 밀어도 넘어가요</p>
-        <p class="v-credit">글·그림 토마스 · 김수진 (지파교육부 교재과장)</p>
+        <p class="v-credit">글·그림 김수진 (지파교육부 교재과장)</p>
         <div class="v-nav">
             <button type="button" id="nav-prev" onclick="stepEp(-1)">‹ 이전화</button>
             <button type="button" class="mid" onclick="closeViewer()">목록</button>
@@ -534,43 +526,64 @@
             if (!document.getElementById('word-viewer').classList.contains('hidden')) closeWord();
         });
 
-        /* ---------- 댓글 ---------- */
+        /* ---------- 댓글 (답글·좋아요) ---------- */
         function myComments() { return store('totoon_my_comments', {}); }
-        function myVotes() { return store('totoon_votes', {}); }
+        function myLikes() { return store('totoon_likes', {}); }
+        let openReplies = new Set();   // 답글 펼친 댓글 id
+        let replyTo = null;            // 답글 입력칸이 열린 댓글 id
         async function loadComments() {
             const key = 'ep' + currentEp;
             const list = document.getElementById('c-list');
             list.innerHTML = '<div class="c-empty">댓글 불러오는 중…</div>';
             document.getElementById('c-count').textContent = commentCounts[key] || 0;
+            openReplies = new Set(); replyTo = null;
             const r = await gasCall({ action: 'toonComments', key });
             if ('ep' + currentEp !== key) return;
-            if (!r || !r.success) { list.innerHTML = `<div class="c-empty">${esc((r && r.message) || '댓글을 불러오지 못했어요')}</div>`; return; }
+            if (!r || !r.success) { list.innerHTML = `<div class="c-empty">${esc(serverMsg(r, '댓글을 불러오지 못했어요'))}</div>`; return; }
             comments = r.rows || [];
             commentCounts[key] = comments.length;
             renderComments();
         }
+        // 서버가 아직 새 기능을 모르면(unknown_action) 사람이 읽을 수 있는 말로 바꿔 보여준다
+        function serverMsg(r, fallback) {
+            if (r && r.message === 'unknown_action') return '댓글 서버 준비 중이에요. 잠시 후 다시 시도해 주세요.';
+            return (r && r.message) || fallback;
+        }
+        function commentHtml(c, opts) {
+            const mine = myComments(), liked = myLikes()[c.id], isAdm = !!adminKey();
+            const replies = opts.reply ? [] : comments.filter(x => x.parentId === c.id).sort((a, b) => new Date(a.at) - new Date(b.at));
+            const open = openReplies.has(c.id);
+            return `<div class="c-item${opts.reply ? ' reply' : ''}">
+                <div class="who">${opts.best ? '<span class="best">BEST</span>' : ''}${opts.reply ? '<span class="re">ㄴ</span>' : ''}${esc(c.name)}${mine[c.id] ? '<span class="mine">내 댓글</span>' : ''}</div>
+                <div class="txt">${esc(c.content)}</div>
+                <div class="bot"><span>${fmtDate(c.at)}</span>
+                    ${opts.reply ? '' : `<button type="button" class="re-btn" onclick="toggleReplies('${c.id}')">답글 ${replies.length ? replies.length : '쓰기'}</button>`}
+                    <span class="sp"></span>
+                    ${mine[c.id] || isAdm ? `<button type="button" class="c-del" onclick="deleteComment('${c.id}')">삭제</button>` : ''}
+                    <button type="button" class="like${liked ? ' on' : ''}" onclick="toggleLike('${c.id}')">${liked ? '♥' : '♡'} 좋아요 ${c.likes || ''}</button>
+                </div>
+                ${!opts.reply && open ? `<div class="replies">
+                    ${replies.map(x => commentHtml(x, { reply: true })).join('')}
+                    <div class="r-form"><textarea id="r-text-${c.id}" maxlength="300" placeholder="답글을 남겨 주세요"></textarea>
+                    <button type="button" class="send" onclick="postComment('${c.id}')">등록</button></div>
+                </div>` : ''}
+            </div>`;
+        }
         function renderComments() {
             document.getElementById('c-count').textContent = comments.length;
-            const mine = myComments(), votes = myVotes(), isAdm = !!adminKey();
-            const ranked = comments.filter(c => c.likes > 0).sort((a, b) => (b.likes - b.dislikes) - (a.likes - a.dislikes) || b.likes - a.likes);
+            const tops = comments.filter(c => !c.parentId);
+            const ranked = tops.filter(c => c.likes > 0).sort((a, b) => b.likes - a.likes || new Date(b.at) - new Date(a.at));
             const bestIds = new Set(ranked.slice(0, 3).map(c => c.id));
-            let rows;
-            if (commentTab === 'best') {
-                // BEST 3 다음에 나머지를 최신순으로 (네이버 웹툰 기본 화면처럼)
-                rows = ranked.slice(0, 3).concat(comments.filter(c => !bestIds.has(c.id)).sort((a, b) => new Date(b.at) - new Date(a.at)));
-            } else {
-                rows = comments.slice().sort((a, b) => new Date(b.at) - new Date(a.at));
-            }
-            document.getElementById('c-list').innerHTML = rows.length ? rows.map(c => `
-                <div class="c-item">
-                    <div class="who">${bestIds.has(c.id) && commentTab === 'best' ? '<span class="best">BEST</span>' : ''}${esc(c.name)}${mine[c.id] ? '<span class="mine">내 댓글</span>' : ''}</div>
-                    <div class="txt">${esc(c.content)}</div>
-                    <div class="bot"><span>${fmtDate(c.at)}</span><span class="sp"></span>
-                        ${mine[c.id] || isAdm ? `<button type="button" class="c-del" onclick="deleteComment('${c.id}')">삭제</button>` : ''}
-                        <button type="button" class="vote like${votes[c.id] === 'like' ? ' on' : ''}" onclick="vote('${c.id}','like')">👍 ${c.likes}</button>
-                        <button type="button" class="vote dislike${votes[c.id] === 'dislike' ? ' on' : ''}" onclick="vote('${c.id}','dislike')">👎 ${c.dislikes}</button>
-                    </div>
-                </div>`).join('') : '<div class="c-empty">첫 댓글을 남겨 주세요 😊</div>';
+            const newest = tops.slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+            const rows = commentTab === 'best' ? ranked.slice(0, 3).concat(newest.filter(c => !bestIds.has(c.id))) : newest;
+            document.getElementById('c-list').innerHTML = rows.length
+                ? rows.map(c => commentHtml(c, { best: commentTab === 'best' && bestIds.has(c.id) })).join('')
+                : '<div class="c-empty">첫 댓글을 남겨 주세요 😊</div>';
+        }
+        function toggleReplies(id) {
+            if (openReplies.has(id)) openReplies.delete(id); else openReplies.add(id);
+            renderComments();
+            if (openReplies.has(id)) { const t = document.getElementById('r-text-' + id); if (t) t.focus(); }
         }
         document.querySelector('.c-tabs').addEventListener('click', e => {
             const b = e.target.closest('button'); if (!b) return;
@@ -581,43 +594,45 @@
         const cText = document.getElementById('c-text'), cName = document.getElementById('c-name');
         cName.value = store('totoon_nick', '');
         cText.addEventListener('input', () => { document.getElementById('c-len').textContent = cText.value.length; });
-        async function postComment() {
-            const content = cText.value.trim();
+        async function postComment(parentId) {
+            const box = parentId ? document.getElementById('r-text-' + parentId) : cText;
+            const content = box.value.trim();
             const name = cName.value.trim();
-            if (!name) { toast('닉네임을 적어 주세요'); cName.focus(); return; }
-            if (!content) { toast('댓글을 입력해 주세요'); cText.focus(); return; }
-            const btn = document.getElementById('c-send'); btn.disabled = true;
+            if (!name) { toast('위쪽 닉네임 칸에 닉네임을 적어 주세요'); cName.focus(); return; }
+            if (!content) { toast(parentId ? '답글을 입력해 주세요' : '댓글을 입력해 주세요'); box.focus(); return; }
+            const btn = parentId ? box.nextElementSibling : document.getElementById('c-send'); btn.disabled = true;
             save('totoon_nick', name);
             const ep = currentEp;
-            const r = await gasCall({ action: 'toonCommentPost', key: 'ep' + ep, name, content });
+            const r = await gasCall({ action: 'toonCommentPost', key: 'ep' + ep, name, content, parentId: parentId || '' });
             btn.disabled = false;
-            if (!r || !r.success) { toast((r && r.message) || '등록하지 못했어요'); return; }
+            if (!r || !r.success) { toast(serverMsg(r, '등록하지 못했어요')); return; }
             const mine = myComments(); mine[r.id] = r.editToken; save('totoon_my_comments', mine);
-            cText.value = ''; document.getElementById('c-len').textContent = 0;
+            box.value = ''; if (!parentId) document.getElementById('c-len').textContent = 0;
             if (currentEp !== ep) return;
-            comments.push({ id: r.id, at: new Date().toISOString(), name, content, likes: 0, dislikes: 0 });
+            comments.push({ id: r.id, at: new Date().toISOString(), name, content, likes: 0, parentId: parentId || '' });
             commentCounts['ep' + ep] = comments.length;
-            commentTab = 'all'; document.querySelectorAll('.c-tabs button').forEach(x => x.classList.toggle('on', x.dataset.c === 'all'));
-            renderComments();
+            if (parentId) openReplies.add(parentId);
+            else { commentTab = 'all'; document.querySelectorAll('.c-tabs button').forEach(x => x.classList.toggle('on', x.dataset.c === 'all')); }
+            renderComments(); toast(parentId ? '답글을 남겼어요' : '댓글을 남겼어요');
         }
         async function deleteComment(id) {
+            if (!confirmInline('이 댓글을')) return;
             const mine = myComments();
             const r = await gasCall({ action: 'toonCommentDelete', id, editToken: mine[id] || '', adminKey: adminKey() });
-            if (!r || !r.success) { toast((r && r.message) || '삭제하지 못했어요'); return; }
+            if (!r || !r.success) { toast(serverMsg(r, '삭제하지 못했어요')); return; }
             delete mine[id]; save('totoon_my_comments', mine);
-            comments = comments.filter(c => c.id !== id);
+            comments = comments.filter(c => c.id !== id && c.parentId !== id);
             commentCounts['ep' + currentEp] = comments.length;
             renderComments(); toast('삭제했어요');
         }
-        async function vote(id, type) {
-            const votes = myVotes(); const c = comments.find(x => x.id === id); if (!c) return;
-            const prev = votes[id];
-            const field = t => t === 'like' ? 'likes' : 'dislikes';
-            const calls = [];
-            if (prev) { c[field(prev)] = Math.max(0, c[field(prev)] - 1); calls.push({ type: prev, delta: -1 }); delete votes[id]; }
-            if (prev !== type) { c[field(type)] += 1; calls.push({ type, delta: 1 }); votes[id] = type; }
-            save('totoon_votes', votes); renderComments();
-            for (const k of calls) await gasCall({ action: 'toonCommentVote', id, type: k.type, delta: k.delta });
+        async function toggleLike(id) {
+            const likes = myLikes(); const c = comments.find(x => x.id === id); if (!c) return;
+            const on = !likes[id];
+            c.likes = Math.max(0, (c.likes || 0) + (on ? 1 : -1));
+            if (on) likes[id] = 1; else delete likes[id];
+            save('totoon_likes', likes); renderComments();
+            const r = await gasCall({ action: 'toonCommentVote', id, type: 'like', delta: on ? 1 : -1 });
+            if (r && r.success) { c.likes = r.value; renderComments(); }
         }
 
         /* ---------- 말씀 보기 ---------- */
@@ -720,7 +735,7 @@
             }
         }
         async function deleteItem(id, label) {
-            if (!confirmInline(`${label}을(를) 삭제할까요?`)) return;
+            if (!confirmInline(`${label}을(를)`)) return;
             const r = await gasCall({ action: 'toonDelete', adminKey: adminKey(), id });
             if (!r || !r.success) { toast((r && r.message) || '삭제하지 못했어요'); return; }
             toast('삭제했어요'); await loadServer();
@@ -729,7 +744,7 @@
         let pendingConfirm = null;
         function confirmInline(msg) {
             if (pendingConfirm === msg) { pendingConfirm = null; return true; }
-            pendingConfirm = msg; toast(msg + ' 한 번 더 누르면 삭제돼요');
+            pendingConfirm = msg; toast(msg + ' 지우려면 삭제를 한 번 더 눌러 주세요');
             setTimeout(() => { if (pendingConfirm === msg) pendingConfirm = null; }, 3000);
             return false;
         }
