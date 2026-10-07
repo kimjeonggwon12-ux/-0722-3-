@@ -155,7 +155,85 @@
         .c-del { border: 0; background: none; color: #bbb; font-size: 12px; padding: 2px 4px; }
         .c-empty { text-align: center; color: #aaa; padding: 30px 0; font-size: 14px; }
 
-        /* 말씀 보기 */
+        /* 말씀 보기: 목차 */
+        .w-intro { background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); padding: 14px 16px; margin-bottom: 14px; }
+        .w-intro .k { font-size: 12px; font-weight: 800; color: var(--violet); letter-spacing: .5px; }
+        .w-intro h2 { margin: 4px 0 2px; font-family: 'Jua', sans-serif; font-weight: 400; font-size: 22px; }
+        .w-intro p { margin: 0; font-size: 13px; color: var(--sub); line-height: 1.5; }
+        .w-intro .row { display: flex; gap: 8px; margin-top: 12px; }
+        .w-intro .row button { flex: 1; border-radius: 10px; padding: 10px 6px; font-size: 13px; font-weight: 900; border: 1.5px solid var(--ink); background: #fff; }
+        .w-intro .row button.main { background: var(--violet); color: #fff; }
+        .w-search { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 14px; font-size: 14px; background: #fff; outline: none; margin-bottom: 6px; }
+        .w-search:focus { border-color: var(--violet); }
+        .toc-part { margin: 22px 0 8px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: var(--violet-d); }
+        .toc-part::after { content: ''; flex: 1; height: 1.5px; background: var(--lilac); }
+        .toc-part .pill { background: var(--violet-s); border: 1.5px solid var(--lilac); border-radius: 999px; padding: 3px 10px; }
+        .toc { position: relative; padding-left: 18px; }
+        .toc::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: #e4dcf7; border-radius: 2px; }
+        .toc-item { position: relative; display: flex; gap: 10px; align-items: flex-start; padding: 10px 10px 10px 4px; border-radius: 12px; cursor: pointer; }
+        .toc-item:active, .toc-item:hover { background: #fff; }
+        .toc-item::before { content: ''; position: absolute; left: -17px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2.5px solid var(--violet); }
+        .toc-item.latest::before { background: var(--violet); box-shadow: 0 0 0 4px rgba(108,71,217,.18); }
+        .toc-item .no { flex-shrink: 0; width: 46px; text-align: center; }
+        .toc-item .no b { display: block; font-family: 'Jua', sans-serif; font-weight: 400; font-size: 20px; color: var(--ink); line-height: 1.1; }
+        .toc-item .no small { font-size: 10px; color: #a39cae; font-weight: 700; }
+        .toc-item .tx { flex: 1; min-width: 0; }
+        .toc-item .tp { font-size: 15px; font-weight: 900; line-height: 1.35; }
+        .toc-item .src { font-size: 12px; color: var(--violet-d); margin-top: 3px; line-height: 1.45; }
+        .toc-item .dt { font-size: 11px; color: #a39cae; margin-top: 3px; }
+        .toc-item.read .tp { color: #8f889b; }
+        .toc-item .new { background: var(--red); color: #fff; font-size: 10px; font-weight: 900; padding: 1px 5px; border-radius: 4px; margin-left: 4px; vertical-align: 2px; }
+
+        /* 말씀 보기: 한 호 */
+        .iss-head { max-width: 720px; margin: 0 auto; padding: 18px 16px 6px; }
+        .iss-head .code { display: inline-block; background: var(--ink); color: #fff; font-size: 12px; font-weight: 900; padding: 3px 10px; border-radius: 999px; }
+        .iss-head .date { font-size: 12px; color: var(--sub); margin-left: 6px; }
+        .iss-head h2 { margin: 10px 0 8px; font-family: 'Jua', sans-serif; font-weight: 400; font-size: clamp(24px, 6.6vw, 32px); line-height: 1.25; }
+        .iss-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; line-height: 1.5; background: #faf7ff; border: 1px solid #e9e1fb; border-radius: 12px; padding: 10px 12px; }
+        .iss-meta dt { font-weight: 900; color: var(--violet-d); white-space: nowrap; }
+        .iss-meta dd { margin: 0; color: var(--ink); }
+        .seg { position: sticky; top: 49px; z-index: 2; max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 16px; background: rgba(255,255,255,.96); border-bottom: 1px solid #eee; }
+        .seg button { border: 1.5px solid var(--line); background: #fff; border-radius: 10px; padding: 9px; font-size: 14px; font-weight: 900; color: var(--sub); }
+        .seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+        .w-body { max-width: 720px; margin: 0 auto; padding: 8px 18px 10px; font-size: 16px; line-height: 1.85; color: #24212b; word-break: keep-all; overflow-wrap: anywhere; }
+        .w-body p { margin: 0 0 14px; }
+        .w-body u { text-decoration: underline; text-decoration-color: var(--violet); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+        .w-body strong { font-weight: 900; }
+        .w-body mark { background: linear-gradient(transparent 55%, #fff07a 55%); color: inherit; padding: 0 1px; }
+        .w-body .red { color: #d92d2d; font-weight: 700; }
+        .w-body .shade { background: #efe8ff; border-radius: 4px; padding: 0 3px; }
+        .w-body .gap { display: inline-block; width: 1em; }
+        .w-sec { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 28px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
+        .w-sec .tag { font-family: 'Jua', sans-serif; font-weight: 400; font-size: 18px; color: #fff; padding: 3px 14px; border-radius: 10px; }
+        .w-sec.ws-intro .tag { background: #0f9f8f; }
+        .w-sec.ws-main .tag { background: var(--violet); }
+        .w-sec.ws-end .tag { background: #e08a00; }
+        .w-sec + .w-sub { margin-top: 6px; }
+        .w-sec .sub { font-size: 14px; font-weight: 800; color: var(--sub); }
+        .w-body > .w-sec:first-child { margin-top: 10px; }
+        .w-sub { display: flex; align-items: center; gap: 10px; margin: 24px 0 12px; padding: 10px 12px; font-size: 17px; font-weight: 900; line-height: 1.4; color: var(--violet-d); background: linear-gradient(90deg, #efe8ff, #f8f5ff 70%, transparent); border-left: 5px solid var(--violet); border-radius: 6px; }
+        .w-sub .n { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--violet); color: #fff; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+        .w-sub2 { margin: 16px 0 8px !important; padding: 4px 10px; background: #f6f3ec; border-radius: 6px; display: inline-block; }
+        .w-sub2 strong { color: var(--ink); }
+        .w-li { padding-left: 1.1em; text-indent: -1.1em; }
+        .w-therefore { background: #fff8e1; border: 1.5px solid #f3d27a; border-radius: 10px; padding: 10px 12px; }
+        .w-quote { position: relative; margin: 6px 0 18px; padding: 16px 16px 14px 18px; background: #fffaf0; border: 1.5px solid #ecd9a8; border-left: 5px solid #d8a93b; border-radius: 10px; font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 16px; line-height: 1.9; color: #3b2f1a; }
+        .w-quote::before { content: '총회장님 말씀'; display: block; font-family: 'Noto Sans KR', sans-serif; font-size: 11px; font-weight: 900; color: #b5862a; letter-spacing: .5px; margin-bottom: 4px; }
+        .w-box { border: 1.5px dashed #cfc6e6; border-radius: 10px; padding: 10px 12px; margin: 0 0 14px; background: #fcfbff; }
+        .w-box p { margin: 0 0 6px; }
+        .w-tbl-wrap { overflow-x: auto; margin: 0 0 16px; }
+        .w-tbl { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.55; }
+        .w-tbl td { border: 1px solid #d9d2e6; padding: 7px 8px; vertical-align: top; }
+        .w-tbl td p { margin: 0 0 4px; }
+        .iss-img { max-width: 720px; margin: 0 auto; padding: 12px 12px 4px; }
+        .iss-img img { width: 100%; display: block; border-radius: 10px; border: 1px solid #eee; }
+        .iss-img p { text-align: center; font-size: 12px; color: #a39cae; margin: 8px 0 0; }
+        .iss-dl { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 16px 6px; }
+        .iss-dl a { display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; border: 1.5px solid var(--ink); border-radius: 12px; padding: 11px 6px; font-size: 13px; font-weight: 900; color: var(--ink); background: #fff; box-shadow: 2px 2px 0 var(--ink); }
+        .iss-dl a.img { background: var(--violet-s); }
+        .iss-src-note { max-width: 720px; margin: 0 auto; padding: 0 18px; font-size: 11px; color: #b0aab9; text-align: center; }
+        .up-head { margin-top: 26px; }
+        /* 관리자 업로드 교재 카드 */
         .word-card { display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
         .word-card .ic { width: 48px; height: 48px; border-radius: 12px; background: #f3ead2; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
         .word-card .t { font-weight: 900; font-size: 15px; }
@@ -238,8 +316,19 @@
     <main class="wrap">
         <!-- 말씀 보기 -->
         <section id="panel-word" class="panel hidden">
-            <div class="list-head">
-                <span class="cnt" id="word-cnt">구역예배 교재</span>
+            <div class="w-intro">
+                <div class="k">구역예배 교재 · 도마지파 교육부</div>
+                <h2>구역예배 말씀 보기</h2>
+                <p id="w-intro-p"></p>
+                <div class="row">
+                    <button type="button" class="main" id="w-latest" onclick="openIssue(ISSUES[ISSUES.length - 1].code)">이번 주 말씀</button>
+                    <button type="button" onclick="toggleTocOrder()" id="w-order">최신호부터</button>
+                </div>
+            </div>
+            <input type="search" class="w-search" id="w-search" placeholder="주제·성구·출처로 찾기 (예: 목자, 계 21)">
+            <div id="toc"></div>
+            <div class="list-head up-head">
+                <span class="cnt" id="word-cnt"></span>
                 <button type="button" class="chip violet admin-only hidden" onclick="openUpload('word')">+ 교재 올리기</button>
             </div>
             <div id="word-list"></div>
@@ -324,6 +413,36 @@
     </div>
 
     <!-- 말씀 교재 뷰어 -->
+    <div id="issue-viewer" class="viewer hidden">
+        <div class="v-top">
+            <button type="button" class="x" onclick="closeIssue()" aria-label="목차로">‹</button>
+            <span class="vt" id="iv-title"></span>
+            <span class="pg" id="iv-pg"></span>
+        </div>
+        <div class="iss-head">
+            <span class="code" id="iv-code"></span><span class="date" id="iv-date"></span>
+            <h2 id="iv-topic"></h2>
+            <dl class="iss-meta" id="iv-meta"></dl>
+        </div>
+        <div class="seg" id="iv-seg">
+            <button type="button" data-v="text" class="on">📖 교재 읽기</button>
+            <button type="button" data-v="img">🖼 이미지로 보기</button>
+        </div>
+        <div id="iv-text" class="w-body"></div>
+        <div id="iv-img" class="iss-img hidden"></div>
+        <div class="iss-dl">
+            <a id="iv-dl-hwp" download>⬇ 교재 내려받기 (한글)</a>
+            <a id="iv-dl-img" class="img" download>⬇ 이미지 내려받기</a>
+        </div>
+        <p class="iss-src-note">본문·서론·본론·결론만 옮겼어요. 예배 순서·확인 문제 등 전체 내용은 한글 파일에 있어요.</p>
+        <div class="v-nav" style="margin-top:10px">
+            <button type="button" id="iv-prev" onclick="stepIssue(-1)">‹ 이전 호</button>
+            <button type="button" class="mid" onclick="closeIssue()">목차</button>
+            <button type="button" id="iv-next" onclick="stepIssue(1)">다음 호 ›</button>
+        </div>
+        <div style="height:40px"></div>
+    </div>
+
     <div id="word-viewer" class="viewer hidden">
         <div class="v-top">
             <button type="button" class="x" onclick="history.back()" aria-label="목록으로">‹</button>
@@ -357,6 +476,7 @@
         </div>
     </div>
 
+    <script src="word/data.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwbXTWcmb4hWpB1MZYLfRpBb_mCpmqgvg3oRav5Kt8C_rdBy_w75jDYE5DC_d8WjwknyQ/exec';
@@ -531,6 +651,12 @@
             });
         })();
         document.addEventListener('keydown', e => {
+            if (currentIssue !== null && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+                if (e.key === 'ArrowLeft') stepIssue(-1);
+                if (e.key === 'ArrowRight') stepIssue(1);
+                if (e.key === 'Escape') closeIssue();
+                return;
+            }
             if (currentEp === null || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
             if (e.key === 'ArrowLeft') stepEp(-1);
             if (e.key === 'ArrowRight') stepEp(1);
@@ -539,6 +665,9 @@
         window.addEventListener('popstate', () => {
             const m = location.hash.match(/^#ep=(\d+)/);
             if (m) { openEp(Number(m[1]), true); return; }
+            const mi = location.hash.match(/^#iss=(\d{4}-\d{2})/);
+            if (mi) { openIssue(mi[1], true); return; }
+            if (currentIssue !== null) closeIssue(true);
             if (currentEp !== null) closeViewer(true);
             if (!document.getElementById('word-viewer').classList.contains('hidden')) closeWord();
         });
@@ -688,17 +817,109 @@
             if (r && r.success) { c.likes = r.value; renderComments(); }
         }
 
-        /* ---------- 말씀 보기 ---------- */
+        /* ---------- 말씀 보기: 1~39호 (word/data.js) ---------- */
+        const ISSUES = (window.WORD_ISSUES || []).slice().sort((a, b) => a.no - b.no);
+        const IMG_EXT = { '4304-15': 'png' };
+        let tocNewest = store('totoon_toc_newest', false);
+        let currentIssue = null, issueView = 'text';
+        const issueImg = code => 'word/img/' + code + '.' + (IMG_EXT[code] || 'jpg');
+        const issueHwp = code => 'word/hwp/구역예배교재' + code + '.hwp';
+        // 출처에서 큰 갈래(『책』 제N부 …)와 나머지를 나눠 목차 흐름을 보여준다
+        function partOf(src) {
+            const m = /^(『[^』]+』)\s*(제\d+부(?:\s*(?:성경론|천지\s*창조론|주제별\s*강해))?)?/.exec(src || '');
+            if (!m) return src || '';
+            const PARTS = { 1: '제1부 성경론', 2: '제2부 천지창조론', 3: '제3부', 4: '제4부 주제별 강해' };
+            const n = m[2] ? (/제(\d+)부/.exec(m[2]) || [])[1] : '';
+            return (m[1].replace(/[『』]/g, '') + (n ? ' ' + (PARTS[n] || '제' + n + '부') : '')).trim();
+        }
+        function srcRest(src) {
+            return (src || '').replace(/^『[^』]+』\s*(제\d+부\s*(?:성경론|천지\s*창조론|주제별\s*강해)?)?\s*/, '').trim() || src;
+        }
+        function renderToc() {
+            const q = (document.getElementById('w-search').value || '').trim().replace(/\s+/g, ' ');
+            const read = new Set(store('totoon_issue_read', []));
+            const last = ISSUES[ISSUES.length - 1];
+            document.getElementById('w-intro-p').textContent = `신 42(2025). 12. 28.부터 매주 한 호씩 · 총 ${ISSUES.length}호 · 이번 주 ${last ? last.no + '호 「' + last.topic + '」' : ''}`;
+            document.getElementById('w-order').textContent = tocNewest ? '1호부터 ⇅' : '최신호부터 ⇅';
+            let list = ISSUES.filter(i => !q || [i.topic, i.verses, i.source, i.code, i.no + '호'].join(' ').includes(q));
+            if (tocNewest) list = list.slice().reverse();
+            let html = '', part = null, open = false;
+            list.forEach(i => {
+                const p = partOf(i.source);
+                if (p !== part) {
+                    if (open) html += '</div>';
+                    html += `<div class="toc-part"><span class="pill">${esc(p)}</span></div><div class="toc">`; part = p; open = true;
+                }
+                html += `<div class="toc-item${i === last ? ' latest' : ''}${read.has(i.code) ? ' read' : ''}" onclick="openIssue('${i.code}')">
+                    <div class="no"><b>${i.no}호</b><small>${i.code}</small></div>
+                    <div class="tx"><div class="tp">${esc(i.topic)}${i === last ? '<span class="new">이번 주</span>' : ''}</div>
+                    <div class="src">${esc(srcRest(i.source))}</div>
+                    <div class="dt">${esc(i.date)}${i.verses ? ' · ' + esc(i.verses) : ''}</div></div>
+                </div>`;
+            });
+            if (open) html += '</div>';
+            document.getElementById('toc').innerHTML = html || '<div class="c-empty">찾는 말씀이 없어요</div>';
+        }
+        function toggleTocOrder() { tocNewest = !tocNewest; save('totoon_toc_newest', tocNewest); renderToc(); }
+        document.getElementById('w-search').addEventListener('input', renderToc);
+
+        function openIssue(code, fromHistory) {
+            const i = ISSUES.find(x => x.code === code); if (!i) return;
+            const wasOpen = currentIssue !== null;
+            currentIssue = code;
+            const v = document.getElementById('issue-viewer');
+            v.classList.remove('hidden'); v.scrollTop = 0;
+            document.body.style.overflow = 'hidden';
+            if (!fromHistory) { if (wasOpen) history.replaceState({ iss: code }, '', '#iss=' + code); else history.pushState({ iss: code }, '', '#iss=' + code); }
+            const idx = ISSUES.indexOf(i);
+            document.getElementById('iv-title').textContent = `${i.no}호 · ${i.topic}`;
+            document.getElementById('iv-pg').textContent = `${idx + 1} / ${ISSUES.length}`;
+            document.getElementById('iv-code').textContent = i.code + '호';
+            document.getElementById('iv-date').textContent = i.date;
+            document.getElementById('iv-topic').textContent = i.topic;
+            document.getElementById('iv-meta').innerHTML =
+                `<dt>출처</dt><dd>${esc(i.source)}</dd>` + (i.verses ? `<dt>본문 성구</dt><dd>${esc(i.verses)}</dd>` : '');
+            document.getElementById('iv-text').innerHTML = i.body;
+            document.getElementById('iv-img').innerHTML = `<img src="${issueImg(i.code)}" alt="${esc(i.no + '호 ' + i.topic)} 이미지" loading="lazy"><p>두 손가락으로 벌려 크게 볼 수 있어요</p>`;
+            const dh = document.getElementById('iv-dl-hwp'); dh.href = issueHwp(i.code); dh.setAttribute('download', `구역예배교재${i.code}_${i.topic}.hwp`);
+            const di = document.getElementById('iv-dl-img'); di.href = issueImg(i.code); di.setAttribute('download', `구역예배교재${i.code}_${i.topic}.${IMG_EXT[i.code] || 'jpg'}`);
+            document.getElementById('iv-prev').disabled = idx === 0;
+            document.getElementById('iv-next').disabled = idx === ISSUES.length - 1;
+            setIssueView(issueView);
+            const read = new Set(store('totoon_issue_read', [])); read.add(code); save('totoon_issue_read', [...read]);
+        }
+        function setIssueView(vw) {
+            issueView = vw;
+            document.querySelectorAll('#iv-seg button').forEach(b => b.classList.toggle('on', b.dataset.v === vw));
+            document.getElementById('iv-text').classList.toggle('hidden', vw !== 'text');
+            document.getElementById('iv-img').classList.toggle('hidden', vw !== 'img');
+        }
+        document.getElementById('iv-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setIssueView(b.dataset.v); });
+        function stepIssue(d) {
+            const idx = ISSUES.findIndex(x => x.code === currentIssue);
+            const n = ISSUES[idx + d]; if (n) openIssue(n.code);
+        }
+        function closeIssue(fromHistory) {
+            if (currentIssue === null) return;
+            currentIssue = null;
+            document.getElementById('issue-viewer').classList.add('hidden');
+            document.body.style.overflow = '';
+            if (!fromHistory) history.back();
+            renderToc();
+        }
+
+        /* ---------- 말씀 보기: 관리자가 따로 올린 교재 ---------- */
         function renderWordList() {
             const isAdm = !!adminKey();
-            document.getElementById('word-cnt').textContent = words.length ? `구역예배 교재 ${words.length}개` : '구역예배 교재';
+            renderToc();
+            document.getElementById('word-cnt').textContent = words.length ? `따로 올린 교재 ${words.length}개` : '';
             document.getElementById('word-list').innerHTML = words.length ? words.map(w => `
                 <div class="word-card" onclick="openWord('${w.id}')">
                     <div class="ic">📖</div>
                     <div style="flex:1;min-width:0"><div class="t">${esc(w.title)} ${isRecent(w.at) ? '<span class="badge-up">NEW</span>' : ''}</div>
                     <div class="d">${fmtDate(w.at).slice(0, 10)} · ${w.pages}쪽</div></div>
                     ${isAdm ? `<button type="button" class="del-mini" onclick="event.stopPropagation();deleteItem('${w.id}','이 교재')">삭제</button>` : ''}
-                </div>`).join('') : `<div class="empty"><span class="big">📖</span><b>아직 올라온 교재가 없어요</b>구역예배 교재가 올라오면 여기서 볼 수 있어요.</div>`;
+                </div>`).join('') : '';
         }
         async function openWord(id) {
             const w = words.find(x => x.id === id); if (!w) return;
@@ -850,7 +1071,9 @@
         (function boot() {
             const h = location.hash;
             const m = h.match(/^#ep=(\d+)/);
+            const mi = h.match(/^#iss=(\d{4}-\d{2})/);
             if (m) { showTab('toon', false); history.replaceState(null, '', '#toon'); openEp(Number(m[1])); }
+            else if (mi) { showTab('word', false); history.replaceState(null, '', '#word'); openIssue(mi[1]); }
             else showTab(['word', 'toon', 'story'].includes(h.slice(1)) ? h.slice(1) : store('totoon_tab', 'toon'));
         })();
         loadServer();
