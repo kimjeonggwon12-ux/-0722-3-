@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>구역예배 &amp; 토툰 · 시온 공부방</title>
-    <meta name="description" content="구역예배 &amp; 토툰 — 말씀 보기 · 토툰(좌충우돌 보라의 신앙 성장기) · 사연 남기기">
+    <meta name="description" content="구역예배 &amp; 토툰 — 구역예배 말씀 보기 · 토툰(좌충우돌 보라의 신앙 성장기) · 사연 남기기">
     <link rel="icon" href="bora.png">
     <link rel="apple-touch-icon" href="bora.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,9 +55,10 @@
         .hero .ko { margin-top: 12px; display: inline-block; font-family: 'Jua', sans-serif; font-size: 13px; color: #fff; background: var(--ink); padding: 3px 10px; border-radius: 999px; letter-spacing: .5px; }
         .hero .tag { margin: 10px 0 0; font-family: 'Jua', sans-serif; font-size: clamp(18px, 5vw, 24px); color: var(--ink); }
         .hero .tag b { color: var(--violet); }
-        .hero .kicker { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; font-family: 'Jua', sans-serif; font-size: clamp(22px, 6.4vw, 30px); color: var(--ink); }
-        .hero .kicker .cross { width: 1.25em; height: 1.25em; border-radius: 50%; background: #ffd23f; border: 2.5px solid var(--ink); box-shadow: 2px 3px 0 var(--ink); display: inline-flex; align-items: center; justify-content: center; font-size: .62em; transform: rotate(-6deg); }
-        .hero .kicker .amp { font-family: 'Bagel Fat One', 'Jua', sans-serif; color: var(--violet); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; font-size: 1.05em; }
+        .hero .kicker { display: flex; justify-content: center; align-items: center; gap: .14em; margin: 2px 0 14px; font-family: 'Bagel Fat One', 'Jua', sans-serif; font-size: clamp(38px, 11.5vw, 76px); line-height: 1; }
+        .hero .kicker .word { color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--violet); transform: rotate(-3deg); display: inline-block; letter-spacing: 1px; }
+        .hero .kicker .cross { width: .78em; height: .78em; font-family: 'Noto Sans KR', sans-serif; font-weight: 900; border-width: 3px !important; border-radius: 50%; background: #ffd23f; border: 2.5px solid var(--ink); box-shadow: 3px 4px 0 var(--ink); display: inline-flex; align-items: center; justify-content: center; font-size: .5em; transform: rotate(-8deg); }
+        .hero .kicker .amp { color: #ffd23f; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); font-size: .8em; transform: rotate(8deg); display: inline-block; }
         .hero .credit { margin: 8px 0 0; font-size: 12px; color: var(--sub); }
         .hero .credit b { color: var(--ink); }
         .v-credit { text-align: center; font-size: 12px; color: #9a93a6; padding: 2px 0 0; }
@@ -65,7 +66,7 @@
 
         /* 코너 탭 */
         .tabs { position: sticky; top: 49px; z-index: 25; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--paper); border-bottom: 1px solid var(--line); }
-        .tabs button { border: 0; background: none; padding: 13px 4px 11px; font-size: 15px; font-weight: 800; color: #9a93a6; border-bottom: 3px solid transparent; }
+        .tabs button { border: 0; background: none; padding: 13px 4px 11px; font-size: clamp(13px, 3.7vw, 15px); line-height: 1.3; word-break: keep-all; font-weight: 800; color: #9a93a6; border-bottom: 3px solid transparent; }
         .tabs button.on { color: var(--ink); border-bottom-color: var(--violet); }
         .panel { padding: 16px; }
 
@@ -210,7 +211,7 @@
     <header class="hero">
         <span class="spark" style="left:8%;top:62%">✦</span>
         <span class="spark" style="right:9%;top:16%">✧</span>
-        <div class="kicker"><span class="cross" aria-hidden="true">✝</span>구역예배 <span class="amp">&amp;</span></div>
+        <div class="kicker"><span class="cross" aria-hidden="true">✝</span><span class="word">구역예배</span><span class="amp">&amp;</span></div>
         <div class="logo" aria-label="TOTOON">
             <span>T</span><i class="face" aria-hidden="true"></i><span>T</span><span class="y">O</span><span>O</span><span>N</span>
         </div>
@@ -220,7 +221,7 @@
     </header>
 
     <nav class="tabs wrap" id="tabs">
-        <button type="button" data-tab="word">📖 말씀 보기</button>
+        <button type="button" data-tab="word">📖 구역예배 말씀 보기</button>
         <button type="button" data-tab="toon">🎨 토툰</button>
         <button type="button" data-tab="story">💌 사연 남기기</button>
     </nav>
