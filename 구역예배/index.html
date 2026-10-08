@@ -839,9 +839,9 @@
             if (r && r.success) { c.likes = r.value; renderComments(); }
         }
 
-        /* ---------- 말씀 보기: 1~39호 (word/data.js) ---------- */
+        /* ---------- 말씀 보기: 1~40호 (word/data.js) ---------- */
         const ISSUES = (window.WORD_ISSUES || []).slice().sort((a, b) => a.no - b.no);
-        const IMG_EXT = { '4304-15': 'png' };
+        const IMG_EXT = { '4304-15': 'png', '4310-40': 'png' };
         let tocNewest = store('totoon_toc_newest', false);
         let currentIssue = null, issueView = store('totoon_issue_view', 'text');
         const issueImg = code => 'word/img/' + code + '.' + (IMG_EXT[code] || 'jpg');
