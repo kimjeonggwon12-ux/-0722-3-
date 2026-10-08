@@ -102,7 +102,7 @@
             aspect-ratio: 1026 / 1532;
             width: min(100%, 420px, calc((100vh - 40px) * 0.6697));
             width: min(100%, 420px, calc((100dvh - 40px) * 0.6697));
-            background: url('assets/cover-gooyeok.png') center / cover no-repeat;
+            background: url('assets/cover-main.png') center / cover no-repeat;
             border-radius: 20px;
             box-shadow: 0 12px 32px rgba(2, 132, 199, 0.25);
             overflow: hidden;
@@ -240,6 +240,15 @@
         .bread-go b { width: 26px; height: 26px; border-radius: 50%; background: #1f2a44; color: #e9c77b; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; animation: breadNudge 1.4s ease-in-out infinite; }
         @keyframes breadNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
         .bread-body { padding: 16px 16px 14px; }
+        /* 오늘의 양식 화면의 큰 '풀러 가기' 버튼 — 금빛, 은은하게 숨쉬듯 */
+        .bread-cta { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 2px 0 16px; padding: 15px 12px; border-radius: 16px; background: linear-gradient(135deg, #f6d98f 0%, #e3b04f 100%); color: #1f2a44; font-family: 'Jua', sans-serif; font-size: 21px; box-shadow: 0 8px 18px -8px rgba(160, 110, 20, .7), inset 0 -3px 0 rgba(0,0,0,.1); animation: breadCtaPulse 2s ease-in-out infinite; transition: transform .12s ease; }
+        .bread-cta b { width: 30px; height: 30px; border-radius: 50%; background: #1f2a44; color: #e9c77b; font-size: 21px; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; animation: breadNudge 1.4s ease-in-out infinite; }
+        .bread-cta:active { transform: scale(.97); }
+        @keyframes breadCtaPulse { 0%, 100% { box-shadow: 0 8px 18px -8px rgba(160, 110, 20, .7), 0 0 0 0 rgba(227, 176, 79, .55), inset 0 -3px 0 rgba(0,0,0,.1); } 50% { box-shadow: 0 8px 18px -8px rgba(160, 110, 20, .7), 0 0 0 8px rgba(227, 176, 79, 0), inset 0 -3px 0 rgba(0,0,0,.1); } }
+        /* 시험 안내 & 신청 메뉴의 '시험 안내 먼저 보기' 버튼 — 주황으로 눈에 띄게 */
+        .examinfo-cta { background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); box-shadow: 0 10px 22px -10px rgba(234, 88, 12, .8); border: 2px solid #fdba74; }
+        .examinfo-cta:hover { filter: brightness(1.05); }
+        .examinfo-cta:active { transform: scale(.98); }
         .bb-title { font-family: 'Jua', sans-serif; font-size: 25px; line-height: 1.2; color: #1f2a44; text-align: center; word-break: keep-all; }
         .bb-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
         .bb-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px 5px 12px; border-radius: 999px; background: #1f2a44; color: #fff6e1; font-size: 13px; font-weight: 800; }
@@ -370,46 +379,6 @@
 
         <!-- 방 선택 화면 -->
         <div id="view-rooms" class="hidden flex-col flex-grow justify-center items-center py-6 fade-in">
-            <!-- 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 (모두 이 기기 localStorage) -->
-            <section class="bread-board">
-                <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
-                    <span class="bread-orn"><i></i></span>
-                    <span class="bread-title">오늘의 양식</span>
-                    <span class="bread-go">풀러 가기 <b>›</b></span>
-                </a>
-                <div class="bread-body">
-                    <p class="bb-title">내 공부 관리</p>
-                    <div id="my-subject-chips" class="bb-chips"></div>
-                    <div class="bb-add">
-                        <select id="my-subject-sel" aria-label="과목">
-                            <option value="theology">초중고 신학</option>
-                            <option value="tongdal" selected>계시록 통달</option>
-                            <option value="memo">계시록 암기</option>
-                        </select>
-                        <select id="my-grade-sel" aria-label="급수">
-                            <option value="4">4급</option>
-                            <option value="3">3급</option>
-                            <option value="2">2급</option>
-                            <option value="1">1급</option>
-                        </select>
-                        <button type="button" onclick="addMySubject()">추가</button>
-                    </div>
-                    <div class="bb-stats">
-                        <div><p class="l">연속 학습</p><p class="v"><span id="my-study-streak">0</span><small>일</small></p></div>
-                        <div><p class="l">푼 횟수</p><p class="v"><span id="my-study-count">0</span><small>회</small></p></div>
-                        <div><p class="l">내 시험 과목<br>평균 점수</p><p class="v"><span id="my-study-avg">-</span></p></div>
-                    </div>
-
-                    <div class="bb-cal-head">
-                        <button type="button" onclick="shiftStudyMonth(-1)" aria-label="이전 달">‹</button>
-                        <p id="study-cal-title"></p>
-                        <button type="button" id="study-next-btn" onclick="shiftStudyMonth(1)" aria-label="다음 달">›</button>
-                    </div>
-                    <div id="study-cal" class="study-cal"></div>
-                    <p class="bb-hint">오늘의 양식을 풀면 달력에 점수가 적혀요(하루 최근 3개). 공부방·모의고사에 들어간 날도 체크돼요. 기록은 이 기기에만 저장됩니다.</p>
-                    <button type="button" class="bb-reset" onclick="resetMyStudyRecords()">초기화</button>
-                </div>
-            </section>
 
             <div class="rooms-photo">
                 <a href="신학기초/index.html" class="rooms-hotspot" data-study="1" style="left:5%; top:33%; width:30%; height:32%;" aria-label="초중고 신학 공부방"></a>
@@ -420,8 +389,8 @@
                 <a href="도통계시록/index.html#grade" data-study="1" class="rooms-hotspot rooms-hotspot-mock" style="left:35%; top:67%; width:29%; height:6.5%;" aria-label="계시록 통달 모의고사"></a>
                 <a href="#memorize-grade" data-study="1" onclick="showMemorizeGrade()" class="rooms-hotspot rooms-hotspot-mock" style="left:66%; top:67%; width:28%; height:6.5%;" aria-label="계시록 암기 모의고사"></a>
 
-                <a href="#examinfo" onclick="showExamInfo()" class="rooms-hotspot" style="left:5%; top:75%; width:27%; height:19%;" aria-label="시험 안내"></a>
-                <a href="#apply" onclick="showApplyMenu()" class="rooms-hotspot" style="left:35.3%; top:74.9%; width:28.5%; height:20.2%;" aria-label="계시록 통달 자격증 시험 신청하기"></a>
+                <a href="#apply" onclick="showApplyMenu()" class="rooms-hotspot" style="left:5.3%; top:74.9%; width:28.5%; height:20.2%;" aria-label="시험 안내 &amp; 신청하기"></a>
+                <a href="#bread" onclick="showBread()" class="rooms-hotspot" style="left:35.3%; top:74.9%; width:28.5%; height:20.2%;" aria-label="오늘의 양식 (풀러 가기 · 내 공부 관리 · 달력)"></a>
                 <a href="구역예배/index.html" class="rooms-hotspot" style="left:65.3%; top:74.9%; width:28.5%; height:20.2%;" aria-label="구역예배 (토툰 · 말씀 보기 · 사연 남기기)"></a>
             </div>
 
@@ -441,6 +410,57 @@
                     <span class="badge-icon" style="background:linear-gradient(160deg, #cbd5e1, #64748b);">🔒</span>
                     로그아웃
                 </button>
+            </div>
+        </div>
+
+        <!-- 오늘의 양식 화면: 풀러 가기 + 내 공부 관리 + 공부한 날 달력 (표지의 '오늘의 양식' 칸에서 들어온다) -->
+        <div id="view-bread" class="hidden flex-col flex-grow items-center py-6 fade-in w-full">
+            <div class="w-full" style="max-width:420px">
+                <button onclick="backToRooms()" class="nav-back-glow flex items-center gap-1.5 text-violet-700 text-[12px] font-black transition-colors mb-4">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    뒤로가기
+                </button>
+                <!-- 오늘의 양식 간판 + 내가 신청한 과목 공부 관리 + 공부한 날 달력 (모두 이 기기 localStorage) -->
+                <section class="bread-board">
+                    <a href="오늘의양식/index.html" class="bread-sign" aria-label="오늘의 양식 풀기">
+                        <span class="bread-orn"><i></i></span>
+                        <span class="bread-title">오늘의 양식</span>
+                        <span class="bread-go">풀러 가기 <b>›</b></span>
+                    </a>
+                    <div class="bread-body">
+                        <a href="오늘의양식/index.html" class="bread-cta">✏️ 오늘의 양식 풀러 가기 <b>›</b></a>
+                        <p class="bb-title">내 공부 관리</p>
+                        <div id="my-subject-chips" class="bb-chips"></div>
+                        <div class="bb-add">
+                            <select id="my-subject-sel" aria-label="과목">
+                                <option value="theology">초중고 신학</option>
+                                <option value="tongdal" selected>계시록 통달</option>
+                                <option value="memo">계시록 암기</option>
+                            </select>
+                            <select id="my-grade-sel" aria-label="급수">
+                                <option value="4">4급</option>
+                                <option value="3">3급</option>
+                                <option value="2">2급</option>
+                                <option value="1">1급</option>
+                            </select>
+                            <button type="button" onclick="addMySubject()">추가</button>
+                        </div>
+                        <div class="bb-stats">
+                            <div><p class="l">연속 학습</p><p class="v"><span id="my-study-streak">0</span><small>일</small></p></div>
+                            <div><p class="l">푼 횟수</p><p class="v"><span id="my-study-count">0</span><small>회</small></p></div>
+                            <div><p class="l">내 시험 과목<br>평균 점수</p><p class="v"><span id="my-study-avg">-</span></p></div>
+                        </div>
+
+                        <div class="bb-cal-head">
+                            <button type="button" onclick="shiftStudyMonth(-1)" aria-label="이전 달">‹</button>
+                            <p id="study-cal-title"></p>
+                            <button type="button" id="study-next-btn" onclick="shiftStudyMonth(1)" aria-label="다음 달">›</button>
+                        </div>
+                        <div id="study-cal" class="study-cal"></div>
+                        <p class="bb-hint">오늘의 양식을 풀면 달력에 점수가 적혀요(하루 최근 3개). 공부방·모의고사에 들어간 날도 체크돼요. 기록은 이 기기에만 저장됩니다.</p>
+                        <button type="button" class="bb-reset" onclick="resetMyStudyRecords()">초기화</button>
+                    </div>
+                </section>
             </div>
         </div>
 
@@ -550,7 +570,7 @@
         <!-- 시험 안내 화면 -->
         <div id="view-examinfo" class="hidden flex-col flex-grow justify-center items-center py-6 fade-in w-full">
             <div class="w-full max-w-md px-2">
-                <button onclick="backToRooms()" class="nav-back-glow flex items-center gap-1.5 text-violet-700 text-[12px] font-black transition-colors mb-4">
+                <button onclick="location.hash='#apply'; showApplyMenu()" class="nav-back-glow flex items-center gap-1.5 text-violet-700 text-[12px] font-black transition-colors mb-4">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     뒤로가기
                 </button>
@@ -855,10 +875,18 @@
                     뒤로가기
                 </button>
                 <div class="text-center mb-6">
-                    <h1 class="text-2xl font-black text-blue-700 font-jua break-keep">시험 신청</h1>
+                    <h1 class="text-2xl font-black text-blue-700 font-jua break-keep">시험 안내 &amp; 신청</h1>
                     <p class="text-slate-500 text-[13px] mt-1 break-keep">원하시는 항목을 선택해주세요</p>
                 </div>
                 <div class="space-y-3">
+                    <button onclick="location.hash='#examinfo'; showExamInfo()" class="examinfo-cta w-full transition-all rounded-2xl p-4 text-left flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shadow-md flex-shrink-0">📢</div>
+                        <div class="flex-grow">
+                            <h3 class="font-jua text-white text-xl leading-tight">시험 안내 먼저 보기</h3>
+                            <p class="text-white/90 text-[13px] font-bold mt-0.5 break-keep">시험 일정·과목·급수·장소를 확인하세요</p>
+                        </div>
+                        <svg class="w-6 h-6 text-white group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
                     <button onclick="showApply()" class="w-full bg-white hover:bg-blue-50 border-2 border-slate-100 hover:border-blue-400 transition-all rounded-2xl p-4 text-left shadow-sm flex items-center gap-4 group">
                         <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md flex-shrink-0">✍️</div>
                         <div class="flex-grow">
@@ -1082,7 +1110,7 @@
         // 암호 체계를 바꾸면서 저장값을 '1'→'2'로 올림: 예전 암호로 들어왔던 기기는 새 암호를 한 번 입력해야 하고,
         // 한 번 입력한 기기는 이후 자동으로 들어간다(도통계시록·신학기초도 같은 값 '2'를 확인).
         const AUTH_VALUE = '2';
-        const ALL_VIEWS = ['view-login', 'view-rooms', 'view-examinfo', 'view-memorize-grade', 'view-memo-exam', 'view-memo-result', 'view-suggest', 'view-community', 'view-apply-menu', 'view-apply', 'view-applycancel', 'view-admin-suggest'];
+        const ALL_VIEWS = ['view-login', 'view-rooms', 'view-examinfo', 'view-memorize-grade', 'view-memo-exam', 'view-memo-result', 'view-suggest', 'view-community', 'view-apply-menu', 'view-bread', 'view-apply', 'view-applycancel', 'view-admin-suggest'];
         const MEMO_VERSES = {
  "ch1": {
   "1": "예수 그리스도의 계시라 이는 하나님이 그에게 주사 반드시 속히 될 일을 그 종들에게 보이시려고 그 천사를 그 종 요한에게 보내어 지시하신 것이라",
@@ -2224,6 +2252,7 @@
         }
         function showMemorizeGrade() { showView('view-memorize-grade'); renderMemoHistoryList(); }
         function showApplyMenu() { showView('view-apply-menu'); }
+        function showBread() { showView('view-bread'); renderStudyCalendar(); renderMyStudy(); window.scrollTo(0, 0); }
         function showApply() { resetApplyForm(); showView('view-apply'); }
         function showApplyCancel() { showView('view-applycancel'); }
         // 11월 15일 계시록 통달 자격증 시험일 — 공부한 날 달력에서 시험일 표시에 사용.
@@ -3784,6 +3813,8 @@
                 showRooms(); showApply();
             } else if (hash === '#applycancel') {
                 showRooms(); showApply(); showApplyCancel();
+            } else if (hash === '#bread') {
+                showRooms(); showBread();
             } else if (hash === '#examinfo') {
                 showRooms(); showExamInfo();
             } else {
