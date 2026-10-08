@@ -192,7 +192,7 @@
         .iss-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; line-height: 1.5; background: #faf7ff; border: 1px solid #e9e1fb; border-radius: 12px; padding: 10px 12px; }
         .iss-meta dt { font-weight: 900; color: var(--violet-d); white-space: nowrap; }
         .iss-meta dd { margin: 0; color: var(--ink); }
-        .seg { position: sticky; top: 49px; z-index: 2; max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 16px; background: rgba(255,255,255,.96); border-bottom: 1px solid #eee; }
+        .seg { position: sticky; top: 49px; z-index: 2; max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 10px 16px; background: rgba(255,255,255,.96); border-bottom: 1px solid #eee; }
         .seg button { border: 1.5px solid var(--line); background: #fff; border-radius: 10px; padding: 9px; font-size: 14px; font-weight: 900; color: var(--sub); }
         .seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
         .w-body { max-width: 720px; margin: 0 auto; padding: 8px 18px 10px; font-size: 16px; line-height: 1.85; color: #24212b; word-break: keep-all; overflow-wrap: anywhere; }
@@ -226,6 +226,26 @@
         .w-tbl { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.55; }
         .w-tbl td { border: 1px solid #d9d2e6; padding: 7px 8px; vertical-align: top; }
         .w-tbl td p { margin: 0 0 4px; }
+        /* 큰 글자 보기: 본문·소제목·총회장님 말씀·표를 모두 2배로, 좌우 여백은 줄여 한 줄에 더 들어가게 */
+        .seg button { padding: 9px 4px; white-space: nowrap; }
+        .seg button.big-btn { font-size: 15px; }
+        .w-body.big { padding: 8px 12px 10px; font-size: 32px; line-height: 1.7; color: #111; }
+        .w-body.big p { margin: 0 0 22px; }
+        .w-body.big u { text-decoration-thickness: 3px; text-underline-offset: 7px; }
+        .w-body.big .w-sec { margin: 40px 0 20px; border-bottom-width: 3px; }
+        .w-body.big .w-sec .tag { font-size: 34px; padding: 4px 20px; border-radius: 14px; }
+        .w-body.big .w-sec .sub { font-size: 26px; }
+        .w-body.big .w-sub { font-size: 32px; gap: 14px; padding: 14px 14px; border-left-width: 7px; }
+        .w-body.big .w-sub .n { width: 46px; height: 46px; font-size: 26px; }
+        .w-body.big .w-quote { font-size: 32px; line-height: 1.75; padding: 22px 18px 20px 20px; border-left-width: 7px; }
+        .w-body.big .w-quote::before { font-size: 20px; }
+        .w-body.big .w-tbl { font-size: 26px; }
+        .w-body.big .w-tbl td { padding: 10px 10px; }
+        .w-body.big .w-therefore, .w-body.big .w-box { padding: 14px 14px; }
+        .w-body.big .gap { width: .6em; }
+        #issue-viewer.bigmode .iss-head h2 { font-size: clamp(38px, 10vw, 52px); }
+        #issue-viewer.bigmode .iss-head .code, #issue-viewer.bigmode .iss-head .date { font-size: 20px; }
+        #issue-viewer.bigmode .iss-meta { font-size: 24px; line-height: 1.55; }
         .iss-img { max-width: 720px; margin: 0 auto; padding: 12px 12px 4px; }
         .iss-img img { width: 100%; display: block; border-radius: 10px; border: 1px solid #eee; }
         .iss-img p { text-align: center; font-size: 12px; color: #a39cae; margin: 8px 0 0; }
@@ -427,6 +447,7 @@
         </div>
         <div class="seg" id="iv-seg">
             <button type="button" data-v="text" class="on">📖 교재 읽기</button>
+            <button type="button" data-v="big" class="big-btn">🔍 큰 글자</button>
             <button type="button" data-v="img">🖼 이미지로 보기</button>
         </div>
         <div id="iv-text" class="w-body"></div>
@@ -822,7 +843,7 @@
         const ISSUES = (window.WORD_ISSUES || []).slice().sort((a, b) => a.no - b.no);
         const IMG_EXT = { '4304-15': 'png' };
         let tocNewest = store('totoon_toc_newest', false);
-        let currentIssue = null, issueView = 'text';
+        let currentIssue = null, issueView = store('totoon_issue_view', 'text');
         const issueImg = code => 'word/img/' + code + '.' + (IMG_EXT[code] || 'jpg');
         const issueHwp = code => 'word/hwp/구역예배교재' + code + '.hwp';
         // 출처에서 큰 갈래(『책』 제N부 …)와 나머지를 나눠 목차 흐름을 보여준다
@@ -905,8 +926,11 @@
         function setIssueView(vw) {
             issueView = vw;
             document.querySelectorAll('#iv-seg button').forEach(b => b.classList.toggle('on', b.dataset.v === vw));
-            document.getElementById('iv-text').classList.toggle('hidden', vw !== 'text');
+            document.getElementById('iv-text').classList.toggle('hidden', vw === 'img');
+            document.getElementById('iv-text').classList.toggle('big', vw === 'big');
+            document.getElementById('issue-viewer').classList.toggle('bigmode', vw === 'big');
             document.getElementById('iv-img').classList.toggle('hidden', vw !== 'img');
+            save('totoon_issue_view', vw);
         }
         document.getElementById('iv-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setIssueView(b.dataset.v); });
         function stepIssue(d) {
