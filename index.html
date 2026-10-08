@@ -97,6 +97,17 @@
             right: 14%;
             top: 87.5%;
         }
+        /* 표지 위 구역예배 소개 영상: 표지 그림과 같은 폭, 같은 둥근 모서리 */
+        .rooms-video {
+            display: block;
+            width: min(100%, 420px);
+            aspect-ratio: 16 / 9;
+            margin: 0 auto 14px;
+            border-radius: 20px;
+            background: #a9d6ff;
+            box-shadow: 0 12px 32px rgba(2, 132, 199, 0.25);
+            object-fit: cover;
+        }
         .rooms-photo {
             position: relative;
             aspect-ratio: 1026 / 1532;
@@ -379,6 +390,10 @@
 
         <!-- 방 선택 화면 -->
         <div id="view-rooms" class="hidden flex-col flex-grow justify-center items-center py-6 fade-in">
+            <!-- 구역예배 & 토툰 소개 영상 (표지 위). 데이터를 아끼려고 누를 때만 받는다 -->
+            <video class="rooms-video" controls playsinline preload="none" poster="assets/gooyeok-promo-thumb.jpg" aria-label="구역예배 & 토툰 소개 영상">
+                <source src="assets/gooyeok-promo.mp4" type="video/mp4">
+            </video>
 
             <div class="rooms-photo">
                 <a href="신학기초/index.html" class="rooms-hotspot" data-study="1" style="left:5%; top:33%; width:30%; height:32%;" aria-label="초중고 신학 공부방"></a>
