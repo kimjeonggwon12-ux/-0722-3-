@@ -84,13 +84,38 @@
         .login-photo {
             position: relative;
             aspect-ratio: 770 / 1250;
-            width: min(100%, 420px, calc((100vh - 40px) * 0.616));
-            width: min(100%, 420px, calc((100dvh - 40px) * 0.616));
+            width: min(100%, 420px, calc((100vh - 130px) * 0.616));
+            width: min(100%, 420px, calc((100dvh - 130px) * 0.616));
             background: url('assets/login-cover.jpg') center / cover no-repeat;
             border-radius: 20px;
             box-shadow: 0 12px 32px rgba(2, 132, 199, 0.25);
             overflow: hidden;
         }
+        /* 표지 아래 암호 변경 안내 배너: 표지와 같은 폭, 한 화면에 같이 보이게 표지 높이를 그만큼 줄임 */
+        .login-notice-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: min(100%, 420px);
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f97316 0%, #e11d48 100%);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
+        }
+        .login-notice-banner .lnb-icon {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 9999px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-notice-banner .lnb-title { font-size: 17px; font-weight: 900; line-height: 1.3; }
+        .login-notice-banner .lnb-sub { font-size: 14px; font-weight: 700; line-height: 1.35; opacity: .95; }
         .login-input-zone {
             position: absolute;
             left: 14%;
@@ -384,6 +409,16 @@
                         <input type="password" id="entry-code-input" autocomplete="current-password" class="flex-grow min-w-0 bg-transparent border-none outline-none px-3 py-2 text-slate-700 font-bold tracking-[0.2em] placeholder:text-slate-500 placeholder:font-normal placeholder:tracking-normal" placeholder="암호 입력" oninput="checkAutoLogin()" onchange="checkAutoLogin()" onkeydown="if(event.key==='Enter') checkLogin()" onanimationstart="handleEntryAutofillDetected(event)">
                         <button onclick="checkLogin()" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-4 py-2 text-sm font-black transition-colors flex-shrink-0">입장</button>
                     </div>
+                </div>
+            </div>
+            <!-- 암호 변경 안내 배너 -->
+            <div class="login-notice-banner" role="note">
+                <div class="lnb-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#229ED9" aria-hidden="true"><path d="M21.94 4.3a1 1 0 0 0-1.36-1.1L2.66 10.1a1 1 0 0 0 .06 1.88l4.4 1.47 1.7 5.37a1 1 0 0 0 1.66.4l2.45-2.4 4.3 3.17a1 1 0 0 0 1.57-.6l3.14-15.1zM9.6 14.1l-.4 3.1-1.2-3.8 9.3-6.2-7.7 6.9z"/></svg>
+                </div>
+                <div>
+                    <p class="lnb-title">🔑 암호가 변경되었습니다.</p>
+                    <p class="lnb-sub">텔레그램 공지를 확인해주세요.</p>
                 </div>
             </div>
         </div>
