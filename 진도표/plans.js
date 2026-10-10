@@ -1,4 +1,4 @@
-// 합격을 위한 공부 진도표 — 12과목(3과목 × 4급수) 계획표 데이터, 진도 저장, 홈 상단 보드, 진도표 화면.
+// 합격 공부 진도표 — 12과목(3과목 × 4급수) 계획표 데이터, 진도 저장, 홈 상단 보드, 진도표 화면.
 // 루트 index.html(#sion-plan-banner)과 진도표/index.html(#jd-page)이 함께 쓴다.
 (function () {
     'use strict';
@@ -460,7 +460,7 @@
                 GRADES.map(g => { const k = s + '-grade' + g; return '<button type="button" class="jd-pick' + (my.includes(k) ? ' on' : '') + '" data-pick="' + k + '">' + g + '급</button>'; }).join('') + '</div>').join('');
     }
 
-    // ---------- 홈 상단 보드: "합격을 위한 공부 진도표" ----------
+    // ---------- 홈 상단 보드: "합격 공부 진도표" ----------
     let boardEditing = false;
     function renderBoard() {
         const host = document.getElementById('sion-plan-banner');
@@ -473,7 +473,7 @@
         }).join('');
         if (!my.length || boardEditing) body += pickerHtml(my);
         if (my.length) body += '<div style="text-align:right"><button type="button" class="jd-textbtn" data-edit="1">' + (boardEditing ? '닫기' : '과목 변경') + '</button></div>';
-        host.innerHTML = '<section class="jd-board"><div class="jd-board-head"><div style="position:relative;z-index:1"><span class="jd-board-eyebrow">' + EXAM_LABEL + ' 자격증 시험</span><span class="jd-new">NEW</span><b><span class="jd-star">⭐</span> 합격을 위한 공부 진도표</b></div><span class="jd-dchip"><small>시험까지</small>' + ddayText() + '</span></div><div class="jd-board-body">' + body + '</div></section>';
+        host.innerHTML = '<section class="jd-board"><div class="jd-board-head"><div style="position:relative;z-index:1"><span class="jd-board-eyebrow">' + EXAM_LABEL + ' 자격증 시험</span><span class="jd-new">NEW</span><b><span class="jd-star">⭐</span> 합격 공부 진도표</b></div><span class="jd-dchip"><small>시험까지</small>' + ddayText() + '</span></div><div class="jd-board-body">' + body + '</div></section>';
         if (!host.dataset.bound) {
             host.dataset.bound = '1';
             host.addEventListener('click', e => {
@@ -552,7 +552,7 @@
         if (!curKey || !PLANS[curKey] || !my.includes(curKey)) curKey = my[0] || null;
         const top = '<div class="jd-top"><a class="jd-back" href="../index.html#rooms">‹ 뒤로 가기</a><span class="jd-dday">시험 ' + ddayText() + '</span></div>';
         if (!curKey) {
-            root.innerHTML = '<div class="jd-page">' + top + '<div class="jd-sub" style="margin-top:10px">' + EXAM_LABEL + ' 자격증 시험</div><div class="jd-h1" style="margin-top:0"><span class="jd-star">⭐</span> 합격을 위한 공부 진도표</div><div class="jd-card" style="margin-top:12px">' + pickerHtml(my) + '</div></div>';
+            root.innerHTML = '<div class="jd-page">' + top + '<div class="jd-sub" style="margin-top:10px">' + EXAM_LABEL + ' 자격증 시험</div><div class="jd-h1" style="margin-top:0"><span class="jd-star">⭐</span> 합격 공부 진도표</div><div class="jd-card" style="margin-top:12px">' + pickerHtml(my) + '</div></div>';
             return;
         }
         try { sessionStorage.setItem('sion_plan_last', curKey); } catch (e) { /* 무시 */ }
