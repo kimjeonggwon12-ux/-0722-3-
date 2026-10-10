@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>합격을 위한 공부 진도표 | 시온 공부방</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body { background: #f1f5f9; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
+        button { font-family: inherit; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="jd-page"></div>
+    <script>
+        // 시온 공부방 입장(로그인)을 거치지 않았으면 첫 화면으로 보낸다
+        if (localStorage.getItem('sion_auth') !== '2') window.location.href = '../index.html';
+    </script>
+    <script src="plans.js"></script>
+</body>
+</html>

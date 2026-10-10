@@ -447,10 +447,8 @@
 
         <!-- 방 선택 화면 -->
         <div id="view-rooms" class="hidden flex-col flex-grow justify-center items-center py-6 fade-in">
-            <!-- 구역예배 & 토툰 소개 영상 (표지 위). 데이터를 아끼려고 누를 때만 받는다 -->
-            <video class="rooms-video" controls playsinline preload="none" poster="assets/gooyeok-promo-thumb.jpg" aria-label="구역예배 & 토툰 소개 영상">
-                <source src="assets/gooyeok-promo.mp4" type="video/mp4">
-            </video>
+            <!-- 합격을 위한 공부 진도표: 12과목 중 내 과목을 고르면 그 진도만 보인다 (내용은 진도표/plans.js가 채운다) -->
+            <div id="sion-plan-banner" class="w-full"></div>
 
             <div class="rooms-photo">
                 <a href="신학기초/index.html" class="rooms-hotspot" data-study="1" style="left:5%; top:33%; width:30%; height:32%;" aria-label="초중고 신학 공부방"></a>
@@ -3936,5 +3934,6 @@
         applyFontScaleStage(loadFontScaleStage());
     </script>
     <script src="font-scale-drag.js"></script>
+    <script src="진도표/plans.js"></script>
 </body>
 </html>
