@@ -342,7 +342,7 @@
     .jd-board-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 16px 15px; background: linear-gradient(120deg, #047857 0%, #0d9488 55%, #0891b2 100%); color: #fff; overflow: hidden; }
     .jd-board-head::after { content: ''; position: absolute; right: -34px; top: -46px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.13); pointer-events: none; }
     .jd-board-eyebrow { display: inline-block; background: rgba(255,255,255,.22); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 900; letter-spacing: -.2px; }
-    .jd-board-head b { display: block; font-size: 23px; font-weight: 900; line-height: 1.2; letter-spacing: -.6px; margin-top: 6px; text-shadow: 0 2px 8px rgba(4,60,50,.35); word-break: keep-all; }
+    .jd-board-head b { display: block; white-space: nowrap; font-size: clamp(16px, 5.2vw, 23px); font-weight: 900; line-height: 1.2; letter-spacing: -.6px; margin-top: 6px; text-shadow: 0 2px 8px rgba(4,60,50,.35); word-break: keep-all; }
     .jd-dchip { position: relative; z-index: 1; flex: 0 0 auto; background: #fff; color: #047857; border-radius: 18px; padding: 8px 12px; font-size: 20px; font-weight: 900; line-height: 1; text-align: center; white-space: nowrap; box-shadow: 0 6px 14px rgba(4,60,50,.25); }
     .jd-dchip small { display: block; font-size: 10.5px; font-weight: 900; color: #64748b; margin-bottom: 3px; }
     .jd-board-head::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 45%; background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,.38) 50%, transparent 100%); transform: translateX(-120%) skewX(-12deg); animation: jdShine 3.4s ease-in-out infinite; pointer-events: none; }
@@ -369,7 +369,7 @@
     .jd-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .jd-back { background: #fff; border: 2px solid #99f6e4; color: #0f766e; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 900; text-decoration: none; }
     .jd-dday { background: #dc2626; color: #fff; border-radius: 999px; padding: 6px 13px; font-size: 14px; font-weight: 900; }
-    .jd-h1 { font-size: 21px; font-weight: 900; color: #0f172a; margin-top: 10px; line-height: 1.25; letter-spacing: -.4px; }
+    .jd-h1 { font-size: 21px; font-weight: 900; color: #0f172a; margin-top: 10px; line-height: 1.25; letter-spacing: -.4px; word-break: keep-all; }
     .jd-sub { font-size: 12.5px; font-weight: 700; color: #64748b; margin-top: 2px; word-break: keep-all; }
     .jd-tabs { display: flex; gap: 6px; overflow-x: auto; margin-top: 8px; }
     .jd-tab { flex: 0 0 auto; border: 1.5px solid #99f6e4; background: #fff; color: #0f766e; border-radius: 999px; padding: 6px 11px; font-size: 12.5px; font-weight: 900; text-decoration: none; }
@@ -473,7 +473,7 @@
         }).join('');
         if (!my.length || boardEditing) body += pickerHtml(my);
         if (my.length) body += '<div style="text-align:right"><button type="button" class="jd-textbtn" data-edit="1">' + (boardEditing ? '닫기' : '과목 변경') + '</button></div>';
-        host.innerHTML = '<section class="jd-board"><div class="jd-board-head"><div style="position:relative;z-index:1"><span class="jd-board-eyebrow">' + EXAM_LABEL + ' 자격증 시험</span><span class="jd-new">NEW</span><b><span class="jd-star">⭐</span> 합격 공부 진도표</b></div><span class="jd-dchip"><small>시험까지</small>' + ddayText() + '</span></div><div class="jd-board-body">' + body + '</div></section>';
+        host.innerHTML = '<section class="jd-board"><div class="jd-board-head"><div style="position:relative;z-index:1;min-width:0"><span class="jd-board-eyebrow">' + EXAM_LABEL + ' 자격증 시험</span><span class="jd-new">NEW</span><b><span class="jd-star">⭐</span> 합격 공부 진도표</b></div><span class="jd-dchip"><small>시험까지</small>' + ddayText() + '</span></div><div class="jd-board-body">' + body + '</div></section>';
         if (!host.dataset.bound) {
             host.dataset.bound = '1';
             host.addEventListener('click', e => {
