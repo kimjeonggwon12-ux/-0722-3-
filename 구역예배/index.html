@@ -101,10 +101,7 @@
         .stage { position: relative; max-width: 720px; margin: 0 auto; background: #f4f1ea; touch-action: pan-y; user-select: none; }
         .stage img { width: 100%; display: block; min-height: 200px; }
         .stage .loading { padding: 120px 0; text-align: center; color: #999; font-weight: 700; }
-        .arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--ink); background: rgba(255,255,255,.92); font-size: 24px; font-weight: 900; color: var(--ink); display: flex; align-items: center; justify-content: center; box-shadow: 2px 3px 0 var(--ink); }
-        .arrow.l { left: 8px; } .arrow.r { right: 8px; }
-        .arrow:disabled { opacity: .2; }
-        .ep-react { max-width: 720px; margin: 0 auto; text-align: center; padding: 18px 16px 6px; }
+        .ep-react { max-width: 720px; margin: 0 auto; text-align: center; padding: 18px 16px 18px; border-bottom: 8px solid #f3f0ea; }
         .ep-like { border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 11px 26px; font-size: 16px; font-weight: 900; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
         .ep-like .h { color: var(--red); font-size: 18px; }
         .ep-like.on { background: #fff1f2; border-color: var(--red); color: var(--red); box-shadow: 3px 3px 0 var(--red); }
@@ -116,6 +113,8 @@
         .v-nav { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 12px 16px; border-bottom: 8px solid #f3f0ea; }
         .v-nav button { border: 1px solid #ddd; background: #fff; border-radius: 10px; padding: 11px 8px; font-weight: 800; font-size: 14px; color: var(--ink); }
         .v-nav button:disabled { color: #ccc; }
+        .v-nav.toon-nav { border-bottom: 0; padding: 8px 16px 10px; }
+        .v-nav.toon-nav button { padding: 14px 8px; font-size: 15px; }
         .v-nav .mid { padding: 11px 16px; background: var(--ink); color: #fff; border-color: var(--ink); }
         .swipe-hint { text-align: center; font-size: 11px; color: #b0aab9; padding: 6px 0 0; }
 
@@ -404,19 +403,17 @@
         </div>
         <div class="stage" id="stage">
             <div id="v-img"></div>
-            <button type="button" class="arrow l" id="arr-l" onclick="stepEp(-1)" aria-label="이전 화">‹</button>
-            <button type="button" class="arrow r" id="arr-r" onclick="stepEp(1)" aria-label="다음 화">›</button>
         </div>
         <p class="swipe-hint">옆으로 밀어도 넘어가요</p>
+        <div class="v-nav toon-nav">
+            <button type="button" id="nav-prev" onclick="stepEp(-1)">‹ 이전화</button>
+            <button type="button" class="mid" onclick="closeViewer()">목록</button>
+            <button type="button" id="nav-next" onclick="stepEp(1)">다음화 ›</button>
+        </div>
         <p class="v-credit">글·그림 김수진 (지파교육부 교재과장)</p>
         <div class="ep-react">
             <button type="button" id="ep-like" class="ep-like" onclick="toggleEpLike()"><span class="h">♡</span> 좋아요 <b id="ep-like-n">0</b></button>
             <p class="ep-views"><b id="ep-views-n">0</b>명이 읽었어요 · 댓글 <b id="ep-cmt-n">0</b></p>
-        </div>
-        <div class="v-nav">
-            <button type="button" id="nav-prev" onclick="stepEp(-1)">‹ 이전화</button>
-            <button type="button" class="mid" onclick="closeViewer()">목록</button>
-            <button type="button" id="nav-next" onclick="stepEp(1)">다음화 ›</button>
         </div>
         <div class="cmt">
             <h3>댓글 <em id="c-count">0</em></h3>
@@ -630,8 +627,8 @@
             const idx = toons.indexOf(t);
             document.getElementById('v-title').textContent = `${t.ep}화 · ${t.title}`;
             document.getElementById('v-pg').textContent = `${idx + 1} / ${toons.length}`;
-            ['arr-l', 'nav-prev'].forEach(id => document.getElementById(id).disabled = idx === 0);
-            ['arr-r', 'nav-next'].forEach(id => document.getElementById(id).disabled = idx === toons.length - 1);
+            document.getElementById('nav-prev').disabled = idx === 0;
+            document.getElementById('nav-next').disabled = idx === toons.length - 1;
             const box = document.getElementById('v-img');
             if (t.src) {
                 box.innerHTML = `<img src="${t.src}" alt="${esc(t.ep + '화 ' + t.title)}">`;
