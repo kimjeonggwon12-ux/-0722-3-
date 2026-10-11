@@ -1,6 +1,6 @@
 // 진도표 → 공부방 연결. 세 공부방(계시록 통달·초중고 신학·계시록 암기)이 함께 쓴다.
 // 진도표의 미션 버튼은 '#plan:...' 주소로 들어오고, 여기서 그 화면을 바로 열어 준다.
-// 진도표에서 넘어온 동안에는 화면 아래에 "진도표로 돌아가기" 버튼을 띄운다.
+// 진도표에서 넘어온 동안에는 화면 오른쪽 아래에 "📅진도표" 버튼을 띄운다.
 (function () {
     'use strict';
 
@@ -30,8 +30,9 @@
         const a = document.createElement('a');
         a.id = 'sion-plan-return';
         a.href = '../진도표/index.html';
-        a.textContent = '📅 진도표로 돌아가기';
-        a.style.cssText = 'position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9998;background:#0f172a;color:#5eead4;' +
+        a.textContent = '📅진도표';
+        a.setAttribute('aria-label', '진도표로 돌아가기');
+        a.style.cssText = 'position:fixed;right:12px;bottom:16px;z-index:9998;background:#0f172a;color:#5eead4;' +
             'border-radius:999px;padding:10px 18px;font-size:14px;font-weight:900;text-decoration:none;box-shadow:0 8px 20px rgba(15,23,42,.4);white-space:nowrap;';
         document.body.appendChild(a);
     }
