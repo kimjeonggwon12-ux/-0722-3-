@@ -132,7 +132,7 @@
     // ── 초중고 신학: 제목 → 비유 → 종강 시험 순서로 쌓고, 두 번째는 시험 모드로 안 보고 쓴다
     const TH = '../신학기초/index.html#plan:';
     const TS = {
-        elem: ['초등 제목', '초제목', 'teal', 24], mid: ['중등 제목', '중제목', 'sky', 26], high: ['고등 제목', '고제목', 'indigo', 24],
+        elem: ['초등 제목', '초제목', 'teal', 26], mid: ['중등 제목', '중제목', 'sky', 26], high: ['고등 제목', '고제목', 'indigo', 24],
         parable: ['초등 비유', '비유', 'rose', 65], elemFinal: ['초등 종강', '초종강', 'violet', 20], midFinal: ['중등 종강', '중종강', 'purple', 20], totalFinal: ['수료 종합', '수료', 'fuchsia', 40]
     };
     function theologyPlan(grade, o, build) {
@@ -220,7 +220,7 @@
 
     const PLANS = {};
     [
-        theologyPlan(4, { tip: '초등 제목 24개 → 초등 종강 20문항 순서로 외웁니다.' }, h => {
+        theologyPlan(4, { tip: '초등 제목 26개 → 초등 종강 20문항 순서로 외웁니다.' }, h => {
             h.learn('elem', 6); h.learn('elemFinal', 7);
             h.test(['elem'], '제목 점검 + 모의고사'); h.plus(h.mock(60));
             h.redo('elem', 2); h.redo('elemFinal', 4);
