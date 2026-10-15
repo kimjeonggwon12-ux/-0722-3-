@@ -511,6 +511,7 @@
             const r = await gasCall(Object.assign({ action: 'bragSubmit', photos }, f));
             btn.disabled = false; prog.textContent = '';
             if (!r || !r.success) { toast((r && r.message) || '보내지 못했어요. 다시 시도해 주세요'); return; }
+            save('brag_mine', [r.id].concat(store('brag_mine', [])).slice(0, 50));
             save('brag_me', { dept: f.dept, region: f.region, zone: f.zone, name: f.name, phone: f.phone });
             lastSent = Object.assign({ week: r.week }, f);
             document.getElementById('d-dept').textContent = f.dept;
@@ -527,7 +528,7 @@
         async function loadBoard(force) {
             if (items && !force) { renderBoard(); return; }
             document.getElementById('posts').innerHTML = '<div class="loading">불러오는 중…</div>';
-            const r = await gasCall({ action: 'bragList', adminKey: adminKey() });
+            const r = await gasCall({ action: 'bragList', adminKey: adminKey(), mine: store('brag_mine', []) });
             if (!r || !r.success) { document.getElementById('posts').innerHTML = '<div class="empty">' + esc((r && r.message) || '불러오지 못했어요') + '<br><button type="button" class="btn-sub" style="margin-top:12px" onclick="loadBoard(true)">다시 불러오기</button></div>'; return; }
             items = r.items || []; isAdminList = !!r.admin;
             renderBoard();
@@ -558,7 +559,7 @@
                 '<button type="button" class="best' + (it.best ? ' on' : '') + '" data-best="' + (it.best ? '0' : '1') + '" data-id="' + it.id + '">🏆 우수 사례' + (it.best ? ' ✓' : '') + '</button></div></div>' : '';
             return '<article class="post' + (it.best ? ' best' : '') + '">' +
                 '<button type="button" class="pic" data-pic="' + it.id + '" aria-label="사진 크게 보기">' + (it.thumb ? '<img src="' + it.thumb + '" alt="" loading="lazy">' : '') + '</button>' +
-                (it.best ? '<span class="bestb">🏆 우수 사례</span>' : '') + (it.photos > 1 ? '<span class="more">사진 ' + it.photos + '장</span>' : '') +
+                (it.best ? '<span class="bestb">🏆 우수 사례</span>' : (it.mine && it.status === '대기' && !isAdminList ? '<span class="bestb" style="background:#fff">⏳ 확인 중 · 나에게만 보여요</span>' : '')) + (it.photos > 1 ? '<span class="more">사진 ' + it.photos + '장</span>' : '') +
                 '<div class="body"><div class="who"><span class="dchip">' + esc(it.dept) + '</span>' + esc(it.region) + ' · ' + esc(it.zone) + '<span class="wk">' + esc(it.week) + '</span></div>' +
                 (it.title ? '<div class="ti">' + esc(it.title) + '</div>' : '') +
                 '<div class="tx" id="tx-' + it.id + '">' + esc(it.content) + '</div>' +
@@ -596,7 +597,7 @@
                 const key = it.id + '|' + i;
                 let data = bigCache.get(key);
                 if (!data) {
-                    const r = await gasCall({ action: 'bragPhoto', id: it.id, idx: i, size: 'f', adminKey: adminKey() });
+                    const r = await gasCall({ action: 'bragPhoto', id: it.id, idx: i, size: 'f', adminKey: adminKey(), mine: store('brag_mine', []) });
                     data = r && r.success ? r.data : '';
                     if (data) bigCache.set(key, data);
                 }
