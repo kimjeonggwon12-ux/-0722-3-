@@ -934,7 +934,8 @@ revelationData.forEach(chapter => {
     chapter.verses.forEach(verse => {
         verse.text = verse.text
             .replace(/지어다/g, '찌어다')
-            .replace(/지니라/g, '찌니라')
+            // '할지니라'처럼 ㄹ받침 뒤에서만 된소리로 — '거두어지니라'(계 14:16, 수동형)는 그대로 둔다
+            .replace(/([가-힣])지니라/g, (m, p) => ((p.charCodeAt(0) - 0xAC00) % 28 === 8) ? p + '찌니라' : m)
             .replace(/알지라/g, '알찌라')
             .replace(/있을지로다/g, '있을찌로다')
             .replace(/아니할지니/g, '아니할찌니')
