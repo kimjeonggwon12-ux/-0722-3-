@@ -959,7 +959,7 @@
                     <button onclick="showApply()" class="w-full bg-white hover:bg-blue-50 border-2 border-slate-100 hover:border-blue-400 transition-all rounded-2xl p-4 text-left shadow-sm flex items-center gap-4 group">
                         <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md flex-shrink-0">✍️</div>
                         <div class="flex-grow">
-                            <h3 class="font-extrabold text-slate-800 text-base">신청하기</h3>
+                            <h3 class="font-extrabold text-slate-800 text-base">신청하기</h3><p class="apply-closed-label hidden text-rose-600 text-[13px] font-black mt-0.5">신청이 마감되었습니다</p>
                             <p class="text-slate-500 text-[13px] font-bold mt-0.5">새로 시험을 신청합니다</p>
                         </div>
                         <svg class="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -2320,9 +2320,26 @@
             if (key) toggleExamRange(key);
         }
         function showMemorizeGrade() { showView('view-memorize-grade'); renderMemoHistoryList(); }
-        function showApplyMenu() { showView('view-apply-menu'); }
+        function showApplyMenu() { if (isApplyClosed()) document.querySelectorAll('.apply-closed-label').forEach(el => { el.classList.remove('hidden'); if (el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); }); showView('view-apply-menu'); }
         function showBread() { showView('view-bread'); renderStudyCalendar(); renderMyStudy(); window.scrollTo(0, 0); }
-        function showApply() { resetApplyForm(); showView('view-apply'); }
+        // 시험 신청 마감: 2026-10-15 24:00(한국 시간)이 지나면 새 신청을 받지 않는다(조회·변경·취소는 그대로).
+        function isApplyClosed() { return Date.now() >= Date.parse('2026-10-16T00:00:00+09:00'); }
+        function showApplyClosedNotice() {
+            let d = document.getElementById('apply-closed-notice');
+            if (!d) {
+                d = document.createElement('div');
+                d.id = 'apply-closed-notice';
+                d.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);padding:20px';
+                d.innerHTML = '<div style="background:#fff;border-radius:22px;padding:28px 24px 20px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.25)">' +
+                    '<div style="font-size:44px;line-height:1">⏰</div>' +
+                    '<p style="margin:12px 0 0;font-size:20px;font-weight:900;color:#1e293b;word-break:keep-all">신청이 마감되었습니다.</p>' +
+                    '<p style="margin:6px 0 18px;font-size:16px;font-weight:700;color:#475569;word-break:keep-all">다음에 신청해주세요.</p>' +
+                    '<button type="button" style="width:100%;border:0;border-radius:14px;background:#2563eb;color:#fff;font-size:16px;font-weight:900;padding:13px">확인</button></div>';
+                d.addEventListener('click', e => { if (e.target === d || e.target.tagName === 'BUTTON') d.remove(); });
+            }
+            document.body.appendChild(d);
+        }
+        function showApply() { if (isApplyClosed()) { showApplyClosedNotice(); return; } resetApplyForm(); showView('view-apply'); }
         function showApplyCancel() { showView('view-applycancel'); }
         // 11월 15일 계시록 통달 자격증 시험일 — 공부한 날 달력에서 시험일 표시에 사용.
         const EXAM_DDAY_DATE = '2026-11-15';
@@ -3280,6 +3297,7 @@
         let applyEditContext = null;
 
         async function submitApplication() {
+            if (!applyEditContext && isApplyClosed()) { showApplyClosedNotice(); return; }
             const isEditing = !!applyEditContext;
             const tribe = document.getElementById('apply-tribe').value.trim() || '도마';
             const church = document.getElementById('apply-church').value;
