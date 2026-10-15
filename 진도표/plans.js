@@ -367,6 +367,54 @@
     .jd-pick-help { font-size: 13px; font-weight: 900; color: #0f766e; margin-bottom: 4px; }
     .jd-page { max-width: 460px; margin: 0 auto; padding: 10px 14px 28px; }
     .jd-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .jd-top-r { display: flex; align-items: center; gap: 6px; }
+    /* 큰 화면(노트북·TV) 보기 — 다른 방의 "큰 화면" 버튼과 같은 목적. 모바일 배치는 그대로 두고
+       .wide가 붙었을 때만 넓은 폭 + 왼쪽 그날 공부 카드(고정) / 오른쪽 달력·공부 방법 2단으로 바꾼다. */
+    .jd-layout { background: #fff; border: 2px solid #99f6e4; color: #0f766e; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 900; animation: jdLayoutPulse 1.6s ease-in-out infinite; }
+    @keyframes jdLayoutPulse {
+        0%, 100% { box-shadow: 0 0 6px 1px rgba(13,148,136,.55), 0 0 0 0 rgba(13,148,136,.5); border-color: #5eead4; }
+        50% { box-shadow: 0 0 16px 4px rgba(45,212,191,.9), 0 0 0 8px rgba(13,148,136,0); border-color: #14b8a6; }
+    }
+    @media (max-width: 420px) { .jd-layout .lb { display: none; } }
+    .jd-page.wide { max-width: min(1500px, 94vw); padding: 16px 24px 40px; }
+    .jd-page.wide .jd-h1 { font-size: 30px; }
+    .jd-page.wide .jd-sub { font-size: 15px; }
+    .jd-page.wide .jd-tab { font-size: 15px; padding: 8px 15px; }
+    .jd-page.wide .jd-stats { max-width: 720px; }
+    .jd-page.wide .jd-stat { font-size: 13px; padding: 9px 4px; }
+    .jd-page.wide .jd-stat b { font-size: 21px; }
+    @media (min-width: 900px) {   /* 폰에서 큰 화면을 눌러도 2단으로 찌그러지지 않게 넓을 때만 나란히 */
+        .jd-page.wide .jd-body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 26px; align-items: start; }
+        .jd-page.wide .jd-col-main { position: sticky; top: 12px; }
+    }
+    .jd-page.wide .jd-card { border-radius: 26px; }
+    .jd-page.wide .jd-day-head { padding: 20px 24px; gap: 18px; }
+    .jd-page.wide .jd-day-date { font-size: 60px; }
+    .jd-page.wide .jd-day-date small { font-size: 17px; }
+    .jd-page.wide .jd-day-when { font-size: 17px; }
+    .jd-page.wide .jd-day-title { font-size: 32px; }
+    .jd-page.wide .jd-day-count { font-size: 22px; padding: 10px 16px; border-radius: 16px; }
+    .jd-page.wide .jd-day-body { padding: 8px 24px 14px; }
+    .jd-page.wide .jd-note { font-size: 16px; padding: 9px 14px; }
+    .jd-page.wide .jd-mission { gap: 16px; padding: 14px 0; }
+    .jd-page.wide .jd-check { width: 54px; height: 54px; font-size: 26px; }
+    .jd-page.wide .jd-check[disabled] { font-size: 20px; }
+    .jd-page.wide .jd-mlabel { font-size: 22px; }
+    .jd-page.wide .jd-chips { gap: 8px; margin-top: 8px; }
+    .jd-page.wide .jd-chip { font-size: 16px; padding: 8px 13px; border-radius: 11px; }
+    .jd-page.wide .jd-score { font-size: 15px; padding: 3px 12px; }
+    .jd-page.wide .jd-cal-title { font-size: 24px; }
+    .jd-page.wide .jd-cal-sub { font-size: 13.5px; }
+    .jd-page.wide .jd-cal { padding: 12px 10px; }
+    .jd-page.wide .jd-grid { gap: 5px; }
+    .jd-page.wide .jd-wd { font-size: 13px; }
+    .jd-page.wide .jd-cell { height: 84px; }
+    .jd-page.wide .jd-cell .n { font-size: 14px; }
+    .jd-page.wide .jd-cell .t { font-size: 12.5px; padding: 3px 0; margin: 3px 3px 0; }
+    .jd-page.wide .jd-cell .r { font-size: 13px; height: 19px; line-height: 19px; }
+    .jd-page.wide .jd-legend { font-size: 13px; }
+    .jd-page.wide .jd-guide { font-size: 15px; }
+    .jd-page.wide .jd-guide summary { font-size: 16px; }
     .jd-back { background: #fff; border: 2px solid #99f6e4; color: #0f766e; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 900; text-decoration: none; }
     .jd-dday { background: #dc2626; color: #fff; border-radius: 999px; padding: 6px 13px; font-size: 14px; font-weight: 900; }
     .jd-h1 { font-size: 21px; font-weight: 900; color: #0f172a; margin-top: 10px; line-height: 1.25; letter-spacing: -.4px; word-break: keep-all; }
@@ -491,6 +539,8 @@
 
     // ---------- 진도표 화면 ----------
     let curKey = null, selDate = null, pagePicker = false;
+    const LAYOUT_KEY = 'sion_plan_layout';   // 'desktop'이면 큰 화면 보기 (기기마다 기억)
+    function isWide() { try { return localStorage.getItem(LAYOUT_KEY) === 'desktop'; } catch (e) { return false; } }
     function missionHtml(s, day, m, locked) {
         const on = isDone(s.progress, day.date, m);
         const sc = mockScoreOn(day.date, m.auto);
@@ -550,9 +600,13 @@
         if (!root) return;
         const my = loadMy();
         if (!curKey || !PLANS[curKey] || !my.includes(curKey)) curKey = my[0] || null;
-        const top = '<div class="jd-top"><a class="jd-back" href="../index.html#rooms">‹ 뒤로 가기</a><span class="jd-dday">시험 ' + ddayText() + '</span></div>';
+        const wide = isWide();
+        const page = '<div class="jd-page' + (wide ? ' wide' : '') + '">';
+        const top = '<div class="jd-top"><a class="jd-back" href="../index.html#rooms">‹ 뒤로 가기</a><span class="jd-top-r">' +
+            '<button type="button" class="jd-layout" data-layout="1">' + (wide ? '📱<span class="lb"> 모바일 화면</span>' : '🖥️<span class="lb"> 큰 화면</span>') + '</button>' +
+            '<span class="jd-dday">시험 ' + ddayText() + '</span></span></div>';
         if (!curKey) {
-            root.innerHTML = '<div class="jd-page">' + top + '<div class="jd-sub" style="margin-top:10px">' + EXAM_LABEL + ' 자격증 시험</div><div class="jd-h1" style="margin-top:0"><span class="jd-star">⭐</span> 합격 공부 진도표</div><div class="jd-card" style="margin-top:12px">' + pickerHtml(my) + '</div></div>';
+            root.innerHTML = page + top + '<div class="jd-sub" style="margin-top:10px">' + EXAM_LABEL + ' 자격증 시험</div><div class="jd-h1" style="margin-top:0"><span class="jd-star">⭐</span> 합격 공부 진도표</div><div class="jd-card" style="margin-top:12px">' + pickerHtml(my) + '</div></div>';
             return;
         }
         try { sessionStorage.setItem('sion_plan_last', curKey); } catch (e) { /* 무시 */ }
@@ -560,12 +614,12 @@
         if (!selDate || !s.plan.byDate[selDate]) selDate = s.plan.byDate[s.today] ? s.today : (s.before ? START : EXAM);
         const tabs = '<div class="jd-tabs">' + my.map(k => '<a class="jd-tab' + (k === curKey ? ' on' : '') + '" href="?plan=' + k + '" data-tab="' + k + '">' + PLANS[k].name + '</a>').join('') +
             '<button type="button" class="jd-tab" data-picker="1">' + (pagePicker ? '닫기' : '과목 변경') + '</button></div>';
-        root.innerHTML = '<div class="jd-page">' + top +
+        root.innerHTML = page + top +
             '<div class="jd-h1">' + s.plan.name + ' 공부 진도표</div><div class="jd-sub">' + s.plan.tip + '</div>' + tabs +
             (pagePicker ? '<div class="jd-card" style="margin-top:8px">' + pickerHtml(my) + '</div>' : '') +
             '<div class="jd-stats"><div class="jd-stat"><b>🔥 ' + s.streak + '</b>연속 달성 일수</div><div class="jd-stat"><b>' + s.doneDays + '/' + s.totalDays + '</b>완료한 날</div><div class="jd-stat"><b>' + s.lateDays + '</b>밀린 날</div></div>' +
-            cardHtml(s) + calendarHtml(s) +
-            '<details class="jd-guide"><summary>📖 자세한 공부 방법 (눌러서 보기)</summary><ul>' + s.plan.guide.map(g => '<li>' + g + '</li>').join('') + '<li>늦게 시작해도 됩니다. 밀린 날은 나중에 체크해 채울 수 있습니다.</li></ul></details></div>';
+            '<div class="jd-body"><div class="jd-col-main">' + cardHtml(s) + '</div><div class="jd-col-side">' + calendarHtml(s) +
+            '<details class="jd-guide"><summary>📖 자세한 공부 방법 (눌러서 보기)</summary><ul>' + s.plan.guide.map(g => '<li>' + g + '</li>').join('') + '<li>늦게 시작해도 됩니다. 밀린 날은 나중에 체크해 채울 수 있습니다.</li></ul></details></div></div></div>';
     }
     function showClear(s) {
         const box = document.createElement('div');
@@ -601,6 +655,7 @@
         if (cell) { selDate = cell.dataset.date; renderPage(); const c = document.getElementById('jd-card'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
         if (e.target.closest('[data-today]')) { selDate = todayStr(); renderPage(); return; }
         if (e.target.closest('[data-picker]')) { pagePicker = !pagePicker; renderPage(); return; }
+        if (e.target.closest('[data-layout]')) { try { localStorage.setItem(LAYOUT_KEY, isWide() ? 'mobile' : 'desktop'); } catch (err) { /* 무시 */ } renderPage(); return; }
         const tab = e.target.closest('[data-tab]');
         if (tab) { e.preventDefault(); curKey = tab.dataset.tab; selDate = null; renderPage(); return; }
         const pick = e.target.closest('[data-pick]');
