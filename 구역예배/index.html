@@ -495,12 +495,12 @@
         </div>
     </div>
 
-    <script src="word/data.js?v=1011"></script>
+    <script src="word/data.js?v=1015"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwbXTWcmb4hWpB1MZYLfRpBb_mCpmqgvg3oRav5Kt8C_rdBy_w75jDYE5DC_d8WjwknyQ/exec';
 
-        // 앱에 같이 들어있는 1~31화 (구역예배/toon/epNN.jpg). 이후 화는 관리자 업로드로 서버(토툰파일 시트)에서 받는다.
+        // 앱에 같이 들어있는 1~32화 (구역예배/toon/epNN.jpg). 이후 화는 관리자 업로드로 서버(토툰파일 시트)에서 받는다.
         const BUNDLED = [
             '참신앙인이 될거야!', '다음엔 시험점수도 100점!', '예배의 품격', '우리의 성전 이야기', '당연한 건 없다는 거!',
             '멋진 우리 집사님', '기도하고 도전!', '멋진 우리 집사님(2)', '멋진 우리 집사님(3)', '마음이 녹는다',
@@ -508,7 +508,7 @@
             '일단 해!', '주의 말씀으로 얻어 맞았사오니', '묵묵하게 할 일을 하는 것', '오늘도 우리 식구는 빛난다', '리셋 버튼',
             '지치고 힘든 날', '말씀저장고', '신앙일기', '뭐라도 하자!', '계시록 통달 자격증 시험',
             '가을맞이', '티끌을 차곡차곡', '영화의 한 씬', '추석, 똑똑', '짠하고 장하다',
-            '자부심이 뿜뿜한다'
+            '자부심이 뿜뿜한다', '사랑이는 사랑이야'
         ].map((title, i) => ({ ep: i + 1, title, src: 'toon/ep' + String(i + 1).padStart(2, '0') + '.jpg', pages: 1 }));
 
         let toons = BUNDLED.slice();     // ep 오름차순
@@ -837,7 +837,7 @@
             if (r && r.success) { c.likes = r.value; renderComments(); }
         }
 
-        /* ---------- 말씀 보기: 1~40호 (word/data.js) ---------- */
+        /* ---------- 말씀 보기: 1~41호 (word/data.js) ---------- */
         const ISSUES = (window.WORD_ISSUES || []).slice().sort((a, b) => a.no - b.no);
         const IMG_EXT = { '4304-15': 'png', '4310-40': 'png' };
         let tocNewest = store('totoon_toc_newest', false);
