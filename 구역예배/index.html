@@ -215,6 +215,11 @@
         .w-sub2 { margin: 16px 0 8px !important; padding: 4px 10px; background: #f6f3ec; border-radius: 6px; display: inline-block; }
         .w-sub2 strong { color: var(--ink); }
         .w-li { padding-left: 1.1em; text-indent: -1.1em; }
+        /* 한글 교재의 들여쓰기 단계: 서론·결론 본문(1) · 소제목 아래 • 항목(2) · • 글자 시작에 맞춘 → 풀이(3) — em이라 큰 글자에서도 같은 비율 */
+        .w-l1 { padding-left: .8em; }
+        .w-li.w-l2 { padding-left: 2.3em; }      /* 1.2em 들이고 + • 뒤 글자 맞춤 1.1em */
+        .w-li.w-l3 { padding-left: 3.4em; }      /* → 가 • 뒤 글자 시작(2.3em)에 오게 */
+        .w-body .w-sub2.w-l2 { margin-left: 1.2em !important; }
         .w-therefore { background: #fff8e1; border: 1.5px solid #f3d27a; border-radius: 10px; padding: 10px 12px; }
         .w-quote { position: relative; margin: 6px 0 18px; padding: 16px 16px 14px 18px; background: #fffaf0; border: 1.5px solid #ecd9a8; border-left: 5px solid #d8a93b; border-radius: 10px; font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 16px; line-height: 1.9; color: #3b2f1a; }
         .w-quote::before { content: '총회장님 말씀'; display: block; font-family: 'Noto Sans KR', sans-serif; font-size: 11px; font-weight: 900; color: #b5862a; letter-spacing: .5px; margin-bottom: 4px; }
@@ -495,7 +500,7 @@
         </div>
     </div>
 
-    <script src="word/data.js?v=1015"></script>
+    <script src="word/data.js?v=1016"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwbXTWcmb4hWpB1MZYLfRpBb_mCpmqgvg3oRav5Kt8C_rdBy_w75jDYE5DC_d8WjwknyQ/exec';
