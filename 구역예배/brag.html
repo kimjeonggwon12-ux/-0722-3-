@@ -206,7 +206,7 @@
 
     <nav class="ptabs" id="ptabs">
         <button type="button" data-v="board">📰 다른 구역 이야기</button>
-        <button type="button" data-v="main">🏆 우리 구역 예배 자랑하기</button>
+        <button type="button" data-v="send">🏆 우리 구역 예배 자랑하기</button>
     </nav>
 
     <!-- ① 공모 메인 -->
@@ -373,7 +373,7 @@
         const MAX_PHOTOS = 3;
         const DEPTS = ['자문회', '장년회', '부녀회', '청년회'];
         const VIEWS = ['main', 'send', 'done', 'board'];
-        const TITLES = { main: '구역예배 사례 공모', send: '사연 보내기', done: '구역예배 사례 공모', board: '구역예배 사례 공모' };
+        const TITLES = { main: '구역예배 사례 공모', send: '구역예배 사례 공모', done: '구역예배 사례 공모', board: '구역예배 사례 공모' };
 
         let photos = [];      // { full, thumb } dataURL
         let dept = '';
@@ -402,29 +402,30 @@
             VIEWS.forEach(n => document.getElementById('v-' + n).classList.toggle('hidden', n !== v));
             document.getElementById('tb-title').textContent = TITLES[v];
             const back = document.getElementById('tb-back');
-            const top = v === 'main' || v === 'board';
+            const top = v === 'send' || v === 'board';
             back.textContent = top ? '‹ 구역예배' : '‹ 뒤로';
             back.setAttribute('href', top ? 'index.html' : '#');
-            document.querySelectorAll('#ptabs button').forEach(b => b.classList.toggle('on', b.dataset.v === (v === 'board' ? 'board' : 'main')));
+            document.querySelectorAll('#ptabs button').forEach(b => b.classList.toggle('on', b.dataset.v === (v === 'board' ? 'board' : 'send')));
             window.scrollTo(0, 0);
             if (v === 'board') loadBoard();
         }
         function go(v, replace) {
-            const h = v === 'main' ? location.pathname + location.search : '#' + v;
+            // 첫 화면 = 바로 사연 보내기 서식 (공모 안내 화면은 건너뜀)
+            const h = v === 'send' ? location.pathname + location.search : '#' + v;
             if (replace) history.replaceState({ v }, '', h); else history.pushState({ v }, '', h);
             show(v);
         }
         document.getElementById('tb-back').addEventListener('click', e => {
             const v = currentView();
-            if (v === 'main' || v === 'board') return;
+            if (v === 'send' || v === 'board') return;
             e.preventDefault();
-            if (v === 'done' || !history.state) go('main', true); else history.back();
+            if (v === 'done' || !history.state) go('send', true); else history.back();
         });
         document.getElementById('ptabs').addEventListener('click', e => {
             const b = e.target.closest('button'); if (!b) return;
             if (currentView() !== b.dataset.v) go(b.dataset.v, true);
         });
-        function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'main'; }
+        function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'send'; }
         window.addEventListener('popstate', () => {
             // 사진 크게 보기가 열려 있으면 그것만 닫는다(목록 스크롤 위치 유지)
             if (!document.getElementById('lightbox').classList.contains('hidden')) { closeLightbox(true); return; }
@@ -674,7 +675,7 @@
         renderThumbs();
         (function boot() {
             const v = currentView();
-            if (v === 'done') { history.replaceState(null, '', location.pathname + location.search); show('main'); return; }
+            if (v === 'done') { history.replaceState(null, '', location.pathname + location.search); show('send'); return; }
             show(v);
         })();
     </script>
