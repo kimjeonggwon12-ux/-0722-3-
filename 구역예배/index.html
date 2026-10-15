@@ -268,13 +268,20 @@
         .empty b { display: block; font-size: 16px; color: var(--ink); margin-bottom: 4px; }
         .word-pages img { width: 100%; display: block; border-bottom: 1px solid #eee; }
 
-        /* 우리 구역 예배 자랑하기(사례 공모) 입구 — brag.html */
-        .brag-banner { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding: 14px 14px 14px 12px; background: #fffaf0; border: 2.5px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); text-decoration: none; color: var(--ink); }
-        .brag-banner img { width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid var(--ink); flex-shrink: 0; }
-        .brag-banner .k { display: inline-block; font-size: 11px; font-weight: 900; color: #fff; background: var(--ink); padding: 2px 9px; border-radius: 999px; }
-        .brag-banner b { display: block; margin-top: 4px; font-family: 'Jua', sans-serif; font-weight: 400; font-size: 21px; color: var(--violet); line-height: 1.15; }
-        .brag-banner small { display: block; margin-top: 3px; font-size: 12.5px; color: var(--sub); }
-        .brag-banner .go { margin-left: auto; flex-shrink: 0; background: var(--violet); color: #fff; font-weight: 900; font-size: 13px; padding: 8px 11px; border-radius: 12px; }
+        /* 구역예배 사례 공모 머리 (세 탭 위) — 왼쪽 구역 이야기(게시판) · 오른쪽 우리 구역 예배 자랑하기 → brag.html */
+        .contest { padding: 14px 16px 4px; }
+        .contest .ct { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; font-size: 12px; font-weight: 900; color: var(--sub); }
+        .contest .ct b { background: var(--ink); color: #fff; padding: 3px 10px; border-radius: 999px; letter-spacing: .5px; }
+        .contest .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .contest a { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 104px; padding: 14px 12px 12px; border: 2.5px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); text-decoration: none; color: var(--ink); overflow: hidden; }
+        .contest a:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+        .contest .story-c { background: #fff; }
+        .contest .brag-c { background: var(--violet); color: #fff; }
+        .contest .ic { font-size: 22px; line-height: 1; }
+        .contest b.n { font-family: 'Jua', sans-serif; font-weight: 400; font-size: clamp(18px, 5vw, 22px); line-height: 1.15; }
+        .contest .story-c b.n { color: var(--violet); }
+        .contest small { font-size: 12px; font-weight: 700; opacity: .8; line-height: 1.35; }
+        .contest .brag-c img { position: absolute; right: -10px; bottom: -10px; width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--ink); opacity: .95; }
 
         /* 사연 남기기 */
         .story-intro { display: flex; gap: 12px; align-items: center; background: #fff; border: 2px solid var(--ink); border-radius: 16px; padding: 14px; box-shadow: 4px 4px 0 var(--ink); margin-bottom: 18px; }
@@ -340,6 +347,14 @@
         <p class="credit">글·그림 <b>김수진</b> (지파교육부 교재과장)</p>
     </header>
 
+    <section class="contest wrap" aria-label="구역예배 사례 공모전">
+        <div class="ct"><b>구역예배 사례 공모전</b>10.29 ~ 12.19 · 매주 커피쿠폰</div>
+        <div class="two">
+            <a class="story-c" href="brag.html#board"><span class="ic">📰</span><b class="n">구역 이야기</b><small>다른 구역 예배<br>모아 보기</small></a>
+            <a class="brag-c" href="brag.html"><span class="ic">🏆</span><b class="n">우리 구역 예배<br>자랑하기</b><small>사진 + 짧은 사연</small><img src="bora.png" alt=""></a>
+        </div>
+    </section>
+
     <nav class="tabs wrap" id="tabs">
         <button type="button" data-tab="word">📖 구역예배 말씀 보기</button>
         <button type="button" data-tab="toon">🎨 토툰</button>
@@ -358,7 +373,6 @@
                     <button type="button" onclick="toggleTocOrder()" id="w-order">최신호부터</button>
                 </div>
             </div>
-            <a class="brag-banner" style="margin-top:14px" href="brag.html"><img src="bora.png" alt=""><span><span class="k">구역예배 사례 공모전</span><b>우리 구역 예배 자랑하기</b><small>사진 한 장 + 짧은 사연 · 매주 커피쿠폰</small></span><span class="go">참여 ›</span></a>
             <input type="search" class="w-search" id="w-search" name="w-q" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="주제·성구·출처로 찾기 (예: 목자, 계 21)">
             <div id="toc"></div>
             <div class="list-head up-head">
@@ -386,10 +400,9 @@
 
         <!-- 사연 남기기 -->
         <section id="panel-story" class="panel hidden">
-            <a class="brag-banner" href="brag.html"><img src="bora.png" alt=""><span><span class="k">구역예배 사례 공모전</span><b>우리 구역 예배 자랑하기</b><small>사진 한 장 + 짧은 사연 · 매주 커피쿠폰</small></span><span class="go">참여 ›</span></a>
             <div class="story-intro">
                 <img src="bora.png" alt="">
-                <p><b>신앙 사연을 들려주세요</b>은혜받은 일, 웃픈 일, 고민까지 무엇이든 좋아요.</p>
+                <p><b>신앙 사연을 들려주세요</b>감동적인 이야기가 토툰으로 그려집니다.</p>
             </div>
             <form id="story-form" onsubmit="submitStory(event)">
                 <div class="f-grid">

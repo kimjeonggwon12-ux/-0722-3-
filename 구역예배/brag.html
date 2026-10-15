@@ -49,6 +49,11 @@
         .sec-t { font-size: 22px; font-weight: 900; margin: 30px 2px 12px; }
         .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 90; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; max-width: 90vw; text-align: center; }
 
+        /* 두 칸 탭: 구역 이야기(게시판) · 우리 구역 예배 자랑하기 */
+        .ptabs { position: sticky; top: 53px; z-index: 25; display: grid; grid-template-columns: 1fr 1fr; background: var(--paper); border-bottom: 1px solid var(--line); }
+        .ptabs button { border: 0; background: none; padding: 13px 4px 11px; font-size: 15px; font-weight: 900; color: #9a93a6; border-bottom: 3px solid transparent; }
+        .ptabs button.on { color: var(--ink); border-bottom-color: var(--violet); }
+
         /* ① 공모 메인 */
         .hero-card { position: relative; overflow: hidden; margin-top: 22px; background: var(--cream); border: 3px solid var(--ink); border-radius: 30px; box-shadow: 0 9px 0 var(--ink); padding: 26px 20px 24px; text-align: center; }
         .hero-card .bubble { display: inline-block; margin-bottom: 18px; }
@@ -162,6 +167,8 @@
         .adm-bar .acts { display: flex; gap: 6px; flex-wrap: wrap; }
         .adm-bar .acts button { border: 1.5px solid var(--line2); background: #fff; border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 900; }
         .adm-bar .acts button.on { background: var(--violet); color: #fff; border-color: var(--violet); }
+        .adm-bar .acts button.del { margin-left: auto; border-color: #fecaca; color: #dc2626; }
+        .adm-bar .acts button.del.sure { background: #dc2626; color: #fff; border-color: #dc2626; }
         .adm-bar .acts button.best.on { background: #ffd23f; color: var(--ink); border-color: #c48a00; }
         .st { font-size: 12px; font-weight: 900; padding: 2px 8px; border-radius: 6px; }
         .st.대기 { background: #fff7ed; color: #c2410c; }
@@ -196,6 +203,11 @@
         <span class="t" id="tb-title">구역예배 사례 공모</span>
         <button type="button" class="adm" id="adm-btn" onclick="openAdmin()">관리</button>
     </div>
+
+    <nav class="ptabs" id="ptabs">
+        <button type="button" data-v="board">📰 구역 이야기</button>
+        <button type="button" data-v="main">🏆 우리 구역 예배 자랑하기</button>
+    </nav>
 
     <!-- ① 공모 메인 -->
     <main id="v-main" class="wrap">
@@ -237,8 +249,8 @@
         <h2 class="sec-t">이번 주 구역예배 교재</h2>
         <a class="issue-card" id="issue-card" href="index.html#word"><span class="n" id="ic-no">호</span><span><span class="k" id="ic-date">구역예배 말씀 보기</span><span class="ti" id="ic-title" style="display:block">이번 주 말씀</span></span><span class="go">›</span></a>
 
-        <h2 class="sec-t">다른 구역 이야기</h2>
-        <button type="button" class="btn-sub" onclick="go('board')">🏆 다른 구역 이야기 보러 가기</button>
+        <h2 class="sec-t">구역 이야기</h2>
+        <button type="button" class="btn-sub" onclick="go('board')">📰 다른 구역 이야기 보러 가기</button>
         <div style="height:40px"></div>
     </main>
 
@@ -325,7 +337,7 @@
     <!-- ④ 다른 구역 이야기 -->
     <main id="v-board" class="wrap hidden">
         <div class="board-head">
-            <h2>다른 구역 이야기</h2>
+            <h2>구역 이야기</h2>
             <p id="board-sub">구역마다 은혜 나눈 시간을 모았어요.</p>
         </div>
         <div class="filters" id="filters">
@@ -361,7 +373,7 @@
         const MAX_PHOTOS = 3;
         const DEPTS = ['자문회', '장년회', '부녀회', '청년회'];
         const VIEWS = ['main', 'send', 'done', 'board'];
-        const TITLES = { main: '구역예배 사례 공모', send: '사연 보내기', done: '구역예배 사례 공모', board: '다른 구역 이야기' };
+        const TITLES = { main: '구역예배 사례 공모', send: '사연 보내기', done: '구역예배 사례 공모', board: '구역예배 사례 공모' };
 
         let photos = [];      // { full, thumb } dataURL
         let dept = '';
@@ -390,8 +402,10 @@
             VIEWS.forEach(n => document.getElementById('v-' + n).classList.toggle('hidden', n !== v));
             document.getElementById('tb-title').textContent = TITLES[v];
             const back = document.getElementById('tb-back');
-            back.textContent = v === 'main' ? '‹ 구역예배' : '‹ 뒤로';
-            back.setAttribute('href', v === 'main' ? 'index.html#story' : '#');
+            const top = v === 'main' || v === 'board';
+            back.textContent = top ? '‹ 구역예배' : '‹ 뒤로';
+            back.setAttribute('href', top ? 'index.html' : '#');
+            document.querySelectorAll('#ptabs button').forEach(b => b.classList.toggle('on', b.dataset.v === (v === 'board' ? 'board' : 'main')));
             window.scrollTo(0, 0);
             if (v === 'board') loadBoard();
         }
@@ -402,9 +416,13 @@
         }
         document.getElementById('tb-back').addEventListener('click', e => {
             const v = currentView();
-            if (v === 'main') return;
+            if (v === 'main' || v === 'board') return;
             e.preventDefault();
             if (v === 'done' || !history.state) go('main', true); else history.back();
+        });
+        document.getElementById('ptabs').addEventListener('click', e => {
+            const b = e.target.closest('button'); if (!b) return;
+            if (currentView() !== b.dataset.v) go(b.dataset.v, true);
         });
         function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'main'; }
         window.addEventListener('popstate', () => {
@@ -556,7 +574,8 @@
         function postHtml(it) {
             const adm = isAdminList ? '<div class="adm-bar"><div class="who2"><span class="st ' + esc(it.status) + '">' + esc(it.status) + '</span> 보낸 분 <b>' + esc(it.name) + '</b> · ' + esc(it.phone) + '</div><div class="acts">' +
                 ['게시', '대기', '숨김'].map(s => '<button type="button" data-set="' + s + '" data-id="' + it.id + '" class="' + (it.status === s ? 'on' : '') + '">' + s + '</button>').join('') +
-                '<button type="button" class="best' + (it.best ? ' on' : '') + '" data-best="' + (it.best ? '0' : '1') + '" data-id="' + it.id + '">🏆 우수 사례' + (it.best ? ' ✓' : '') + '</button></div></div>' : '';
+                '<button type="button" class="best' + (it.best ? ' on' : '') + '" data-best="' + (it.best ? '0' : '1') + '" data-id="' + it.id + '">🏆 우수 사례' + (it.best ? ' ✓' : '') + '</button>' +
+                '<button type="button" class="del" data-delpost="' + it.id + '">🗑 삭제</button></div></div>' : '';
             return '<article class="post' + (it.best ? ' best' : '') + '">' +
                 '<button type="button" class="pic" data-pic="' + it.id + '" aria-label="사진 크게 보기">' + (it.thumb ? '<img src="' + it.thumb + '" alt="" loading="lazy">' : '') + '</button>' +
                 (it.best ? '<span class="bestb">🏆 우수 사례</span>' : (it.mine && it.status === '대기' && !isAdminList ? '<span class="bestb" style="background:#fff">⏳ 확인 중 · 나에게만 보여요</span>' : '')) + (it.photos > 1 ? '<span class="more">사진 ' + it.photos + '장</span>' : '') +
@@ -571,6 +590,20 @@
             if (more) { const t = document.getElementById('tx-' + more.dataset.more); const o = t.classList.toggle('open'); more.textContent = o ? '접기' : '더 보기'; return; }
             const pic = e.target.closest('[data-pic]');
             if (pic) { openLightbox(items.find(i => i.id === pic.dataset.pic)); return; }
+            const del = e.target.closest('[data-delpost]');
+            if (del) {
+                if (!del.classList.contains('sure')) {
+                    del.classList.add('sure'); del.textContent = '정말 삭제? (사진까지 지워져요)';
+                    setTimeout(() => { if (del.isConnected) { del.classList.remove('sure'); del.textContent = '🗑 삭제'; } }, 3000);
+                    return;
+                }
+                del.disabled = true; del.textContent = '지우는 중…';
+                const r = await gasCall({ action: 'bragDelete', adminKey: adminKey(), id: del.dataset.delpost });
+                if (!r || !r.success) { toast((r && r.message) || '지우지 못했어요'); del.disabled = false; del.classList.remove('sure'); del.textContent = '🗑 삭제'; return; }
+                items = items.filter(i => i.id !== del.dataset.delpost);
+                toast('삭제했어요'); renderBoard();
+                return;
+            }
             const set = e.target.closest('[data-set]'), best = e.target.closest('[data-best]');
             if (set || best) {
                 const it = items.find(i => i.id === (set || best).dataset.id);
