@@ -511,6 +511,7 @@
                                 <option value="3">3급</option>
                                 <option value="2">2급</option>
                                 <option value="1">1급</option>
+                                <option value="special">특별전형(자문회·장로회)</option>
                             </select>
                             <button type="button" onclick="addMySubject()">추가</button>
                         </div>
@@ -2388,13 +2389,17 @@
         // 연속 학습 · 푼 횟수 · 평균 점수를 보여준다. 과목을 하나도 안 넣었으면 오늘의 양식 전체 기록으로 집계.
         // (위쪽 renderStudyCalendar()가 먼저 즉시 실행되므로 여기 헬퍼는 const 대신 함수 선언으로 둔다)
         function mySubjectLabel(key) {
+            if (key === 'tongdal-special') return '계시록 통달 자문회·장로회 특별전형';
             const [s, g] = String(key).split('-grade');
             return ({ theology: '초중고 신학', tongdal: '계시록 통달', memo: '계시록 암기' }[s] || s) + ' ' + g + '급';
         }
         function loadMySubjects() { try { const a = JSON.parse(localStorage.getItem('sion_my_subjects')); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
         function saveMySubjects(list) { try { localStorage.setItem('sion_my_subjects', JSON.stringify(list)); } catch (e) {} }
         function addMySubject() {
-            const key = `${document.getElementById('my-subject-sel').value}-grade${document.getElementById('my-grade-sel').value}`;
+            const subj = document.getElementById('my-subject-sel').value, grade = document.getElementById('my-grade-sel').value;
+            // 특별전형(자문회·장로회)은 계시록 통달에만 있다(오늘의 양식 키 'tongdal-special')
+            if (grade === 'special' && subj !== 'tongdal') { alert('특별전형(자문회·장로회)은 계시록 통달 과목에만 있어요.'); return; }
+            const key = grade === 'special' ? 'tongdal-special' : `${subj}-grade${grade}`;
             const list = loadMySubjects();
             if (!list.includes(key)) { list.push(key); saveMySubjects(list); }
             renderMyStudy(); renderStudyCalendar();
