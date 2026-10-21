@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>합격 공부 진도표 | 시온 공부방</title>
-    <style>
-        * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; }
-        body { background: #f1f5f9; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-tap-highlight-color: transparent; }
-        button { font-family: inherit; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>시온 공부방</title>
+<style>body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:-apple-system,"Malgun Gothic",sans-serif;background:#f7f7fa;color:#333;text-align:center;padding:16px}a{color:#c0206b;font-weight:700}</style>
 </head>
 <body>
-    <div id="jd-page"></div>
-    <script>
-        // 시온 공부방 입장(로그인)을 거치지 않았으면 첫 화면으로 보낸다
-        if (localStorage.getItem('sion_auth') !== '2') window.location.href = '../index.html';
-    </script>
-    <script src="plans.js?v=1015"></script>
-    <script src="../font-scale-drag.js?v=1010"></script>
+<p>시온 공부방이 새 주소로 옮겼어요. 잠시만 기다려 주세요…</p>
+<p><a id="go" href="https://zion-study-room.vercel.app/%EC%A7%84%EB%8F%84%ED%91%9C/index.html">바로 가기</a></p>
+<script>
+// 같은 화면(#해시·?주소 그대로)으로 보내되, 이 기기에 저장된 시온 공부방 기록을 함께 옮긴다.
+(function () {
+  var NEW = "https://zion-study-room.vercel.app";
+  var to = '/' + "%EC%A7%84%EB%8F%84%ED%91%9C/index.html" + location.search + location.hash;
+  var direct = NEW + to;
+  document.getElementById('go').href = direct;
+  var data = {}, n = 0;
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (/^(sion_|totoon_|brag_)/.test(k) || k === 'tongdal_practice_v2') { data[k] = localStorage.getItem(k); n++; }
+    }
+  } catch (e) {}
+  if (!n || !window.fetch) { location.replace(direct); return; }
+  var done = false;
+  var fallback = setTimeout(function () { if (!done) { done = true; location.replace(direct); } }, 6000);
+  fetch(NEW + '/api/carry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: data }) })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (done) return; done = true; clearTimeout(fallback);
+      location.replace(j && j.code ? NEW + '/carry.html?code=' + encodeURIComponent(j.code) + '&to=' + encodeURIComponent(to) : direct);
+    })
+    .catch(function () { if (!done) { done = true; clearTimeout(fallback); location.replace(direct); } });
+})();
+</script>
 </body>
 </html>
